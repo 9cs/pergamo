@@ -1,0 +1,277 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 0% 45%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 20%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 20%;
+
+    --success: 142 60% 45%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 45%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 0 0% 65%;
+    --primary-foreground: 0 0% 10%;
+
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 95%;
+
+    --success: 142 60% 45%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Animações mais sutis */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Classes de animação */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2.5s infinite;
+}
+
+.animate-bounce-soft {
+  animation: bounce 2.5s infinite;
+}
+
+/* Transições */
+.page-transition {
+  transition: all 0.2s ease;
+}
+
+/* Estilos para cards de matérias */
+.subject-card {
+  transition: all 0.2s ease;
+  border-width: 2px;
+  border-color: hsl(var(--border));
+}
+
+.subject-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  border-color: hsl(var(--primary));
+}
+
+.subject-card:hover .subject-icon {
+  background-color: hsl(var(--primary) / 0.2);
+  transform: scale(1.05);
+}
+
+/* Estilos para ícones de matérias */
+.subject-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  margin-right: 0.5rem;
+  font-size: 1.25rem;
+  background-color: hsl(var(--secondary));
+  transition: all 0.2s ease;
+}
+
+/* Estilos para questões */
+.question-card {
+  transition: all 0.2s ease;
+}
+
+.question-number {
+  font-weight: bold;
+  color: hsl(var(--primary));
+}
+
+.alternative-item {
+  transition: all 0.15s ease;
+}
+
+.alternative-item:hover:not(.answered) {
+  background-color: hsl(var(--secondary) / 0.5);
+}
+
+.correct-answer {
+  animation: pulse 1s;
+  background-color: hsl(var(--success) / 0.2);
+  border-color: hsl(var(--success));
+}
+
+.incorrect-answer {
+  animation: pulse 1s;
+  background-color: hsl(var(--destructive) / 0.2);
+  border-color: hsl(var(--destructive));
+}
+
+/* Estilos para botões */
+.button-primary {
+  transition: all 0.15s ease;
+}
+
+.button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+}
+
+.button-primary:active {
+  transform: translateY(0);
+}
+
+/* Estilos para títulos */
+.title-gradient {
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Estilos para estatísticas */
+.stats-item {
+  transition: all 0.2s ease;
+}
+
+.stats-item:hover {
+  transform: translateY(-1px);
+}
+
+/* Estilos para explicação */
+.explanation-container {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  background-color: hsl(var(--secondary) / 0.3);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.explanation-title {
+  font-weight: bold;
+  color: hsl(var(--primary));
+  margin-bottom: 0.5rem;
+}
+
+.explanation-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}

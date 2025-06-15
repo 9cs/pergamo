@@ -1,0 +1,44 @@
+{
+  "title": "Questão 5 - ENEM 2022",
+  "index": 5,
+  "year": 2022,
+  "language": null,
+  "discipline": "matematica",
+  "context": "Uma empresa de entregas possui três veículos: uma motocicleta, um carro e uma van. Cada veículo tem um custo por quilômetro rodado e uma capacidade máxima de carga, conforme o quadro.\n\n| Veículo | Custo por quilômetro (R$) | Capacidade máxima de carga (kg) |\n|---------|----------------------------|----------------------------------|\n| Motocicleta | 0,20 | 20 |\n| Carro | 0,55 | 450 |\n| Van | 0,90 | 1 000 |\n\nA empresa precisa entregar uma encomenda de 250 kg a um cliente que se encontra a 100 km de distância.",
+  "files": [],
+  "correctAlternative": "B",
+  "alternativesIntroduction": "Para que a empresa realize o serviço com o menor custo possível, ela deve utilizar o",
+  "alternatives": [
+    {
+      "letter": "A",
+      "text": "carro, com custo de R$ 20,00.",
+      "file": null,
+      "isCorrect": false
+    },
+    {
+      "letter": "B",
+      "text": "carro, com custo de R$ 55,00.",
+      "file": null,
+      "isCorrect": true
+    },
+    {
+      "letter": "C",
+      "text": "carro, com custo de R$ 110,00.",
+      "file": null,
+      "isCorrect": false
+    },
+    {
+      "letter": "D",
+      "text": "van, com custo de R$ 90,00.",
+      "file": null,
+      "isCorrect": false
+    },
+    {
+      "letter": "E",
+      "text": "van, com custo de R$ 180,00.",
+      "file": null,
+      "isCorrect": false
+    }
+  ],
+  "explanation": "A resposta correta é B (carro, com custo de R$ 55,00) porque precisamos analisar qual veículo pode transportar a encomenda de 250 kg com o menor custo. A motocicleta tem capacidade máxima de 20 kg, portanto não pode transportar a encomenda. O carro tem capacidade de 450 kg, suficiente para transportar os 250 kg. A van também pode transportar a encomenda, com capacidade de 1.000 kg. Agora, calculamos o custo de cada opção viável: Para o carro: 100 km × R$ 0,55/km = R$ 55,00. Para a van: 100 km × R$ 0,90/km = R$ 90,00. Portanto, o carro é a opção mais econômica, com custo de R$ 55,00."
+}
