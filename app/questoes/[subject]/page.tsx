@@ -466,12 +466,14 @@ export default function QuestionsPage() {
                     <span className="font-semibold">{alternative.letter})</span>
                     {alternative.text && <span> {parseMarkdown(alternative.text)}</span>}
                     {alternative.file && (
-                      <img
-                        src={alternative.file}
-                        alt={`Alternativa ${alternative.letter}`}
-                        className="max-w-xs h-auto mt-2 rounded"
-                        style={{ display: "block" }}
-                      />
+                      <div className="w-full max-w-full sm:max-w-xs mt-2 flex items-center">
+                        <img
+                          src={alternative.file}
+                          alt={`Alternativa ${alternative.letter}`}
+                          className="w-full h-auto rounded object-contain"
+                          style={{ maxHeight: '160px', display: 'block' }}
+                        />
+                      </div>
                     )}
                   </Label>
 
