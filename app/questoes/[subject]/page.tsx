@@ -210,44 +210,67 @@ export default function QuestionsPage() {
     setShowExplanation(!showExplanation)
   }
 
+
+  function SafeImage({ src, alt }: { src: string; alt: string }) {
+    const [error, setError] = useState(false)
+
+    if (error) {
+      return (
+        <img
+          src="/placeholder.svg"
+          alt="Imagem não encontrada"
+          className="max-w-full h-auto rounded-md"
+        />
+      )
+    }
+
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className="max-w-full h-auto rounded-md"
+        onError={() => setError(true)}
+      />
+    )
+  }
+
   // Função para formatar o contexto com imagens inline
-  function formatContext(context: string | undefined | null, files: string[], dirName?: string, year?: number) {
-  if (!context) return null
+  function formatContext(
+    context: string | undefined | null,
+    files: string[],
+    dirName?: string,
+    year?: number
+  ) {
+    if (!context) return null
 
-  // Divide o texto em partes pelo marcador [imagem]
-  const parts = context.split("[imagem]")
+    // Divide o texto em partes pelo marcador [imagem]
+    const parts = context.split("[imagem]")
 
-  // Caminho base para a pasta da questão (já que está em /public)
-  // Exemplo: /public/2010/questions/102/233eafdb.jpg
-  let fileIndex = 0
-  const basePath = year && dirName ? `/${year}/questions/${dirName}` : ""
+    // Caminho base para a pasta da questão (já que está em /public)
+    let fileIndex = 0
+    const basePath = year && dirName ? `/${year}/questions/${dirName}` : ""
 
-  return (
-    <div className="context-block whitespace-pre-line">
-      {parts.map((part, i) => (
-        <div key={i} className="mb-4">
-          {/* Renderiza o texto */}
-          {parseMarkdown(part)}
+    return (
+      <div className="context-block whitespace-pre-line">
+        {parts.map((part, i) => (
+          <div key={i} className="mb-4">
+            {/* Renderiza o texto */}
+            {parseMarkdown(part)}
 
-          {/* Renderiza a imagem, se existir */}
-          {i < parts.length - 1 && files[fileIndex] && (
-            <div className="my-4 flex justify-center">
-              <img
-                src={`${basePath}/${files[fileIndex++]}`}
-                alt={`Imagem da questão`}
-                className="max-w-full h-auto rounded-md"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = "/placeholder.svg?height=300&width=400"
-                }}
-              />
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
+            {/* Renderiza a imagem, se existir */}
+            {i < parts.length - 1 && files[fileIndex] && (
+              <div className="my-4 flex justify-center">
+                <SafeImage
+                  src={`${basePath}/${files[fileIndex++]}`}
+                  alt={`Imagem da questão`}
+                />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
 
 
 
