@@ -67,12 +67,33 @@ export async function GET(
 
     const allQuestions = readQuestionsRecursively(baseDir)
 
-    // Filtra por disciplina ou área
+    // Filtro especial para inglês e espanhol: pega por disciplina, language e dirName
     const filteredQuestions = allQuestions.filter((q) => {
       // se usuário pedir área inteira
       if (["ciencias-humanas","ciencias-natureza","linguagens","matematica"].includes(subject)) {
         return q.area === subject
       }
+
+      // Filtro especial para inglês
+      if (subject === "ingles") {
+        const dir = (q.dirName || "").toLowerCase()
+        return (
+          q.discipline === "ingles" ||
+          (q.language && q.language.toLowerCase() === "ingles") ||
+          dir.endsWith("-ingles") || dir === "ingles"
+        )
+      }
+
+      // Filtro especial para espanhol
+      if (subject === "espanhol") {
+        const dir = (q.dirName || "").toLowerCase()
+        return (
+          q.discipline === "espanhol" ||
+          (q.language && q.language.toLowerCase() === "espanhol") ||
+          dir.endsWith("-espanhol") || dir === "espanhol"
+        )
+      }
+
       // caso normal: disciplina exata
       return q.discipline === subject
     })
