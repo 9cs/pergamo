@@ -24,6 +24,7 @@ interface Question {
   index: number
   year: number
   language: string | null
+  area: string
   discipline: string
   context: string
   files: string[]
@@ -31,6 +32,7 @@ interface Question {
   alternativesIntroduction: string
   alternatives: Alternative[]
   explanation?: string
+  dirName?: string
 }
 
 // Função para converter _itálico_ e **negrito** em <em> e <strong>
@@ -208,43 +210,45 @@ export default function QuestionsPage() {
     setShowExplanation(!showExplanation)
   }
 
-  const formatContext = (context: string | undefined | null) => {
-    if (typeof context !== "string") return null;
+  // Função para formatar o contexto com imagens inline
+  function formatContext(context: string | undefined | null, files: string[], dirName?: string, year?: number) {
+  if (!context) return null
 
-    // Substituir marcações de imagem Markdown por componentes de imagem
-    if (context.includes("![](")) {
-      const imgRegex = /!\[\]\((.*?)\)/g
-      const matches = context.match(imgRegex)
+  // Divide o texto em partes pelo marcador [imagem]
+  const parts = context.split("[imagem]")
 
-      if (matches && matches.length > 0) {
-        // Extrair a URL da imagem
-        const imgUrl = matches[0].replace("![](", "").replace(")", "")
+  // Caminho base para a pasta da questão (já que está em /public)
+  // Exemplo: /public/2010/questions/102/233eafdb.jpg
+  let fileIndex = 0
+  const basePath = year && dirName ? `/public/${year}/questions/${dirName}` : ""
 
-        // Remover a marcação de imagem do contexto
-        const textContent = context.replace(imgRegex, "")
+  return (
+  <div className="context-block whitespace-pre-line">
+  {parts.map((part, i) => (
+  <span key={i} className="inline-block">
+    {/* Renderiza o texto */}
+    {parseMarkdown(part)}
 
-        return (
-          <>
-            <p className="mb-4 whitespace-pre-line">{parseMarkdown(textContent)}</p>
-            <div className="my-4 flex justify-center">
-              <img
-                src={imgUrl || "/placeholder.svg?height=300&width=400"}
-                alt="Imagem da questão"
-                className="max-w-full h-auto rounded-md"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = "/placeholder.svg?height=300&width=400"
-                }}
-              />
-            </div>
-          </>
-        )
-      }
-    }
-
-    // Se não tiver imagem, retorna o texto formatado (com parseMarkdown)
-    return <p className="mb-4 whitespace-pre-line">{parseMarkdown(context)}</p>
+    {/* Se houver marcador [imagem] neste ponto, insere a imagem correspondente */}
+    {i < parts.length - 1 && files[fileIndex] && (
+      <div className="my-4 flex justify-center">
+        <img
+          src={`${basePath}/${files[fileIndex++]}`}
+          alt={`Imagem da questão`}
+          className="max-w-full h-auto rounded-md"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement
+            target.src = "/placeholder.svg?height=300&width=400"
+          }}
+        />
+      </div>
+    )}
+  </span>
+  ))}
+  </div>
+  )
   }
+
 
   if (loading) {
     return (
@@ -392,7 +396,12 @@ export default function QuestionsPage() {
             <CardTitle>{currentQuestion.title}</CardTitle>
           </CardHeader>
           <CardContent>
-            {formatContext(currentQuestion.context)}
+            {formatContext(
+              currentQuestion.context,
+              currentQuestion.files ?? [],
+              currentQuestion.dirName,      // ex.: "102" ou "94-espanhol"
+              currentQuestion.year
+            )}
 
             {currentQuestion.files.length > 0 && !currentQuestion.context.includes("![](") && (
               <div className="my-4 flex justify-center">

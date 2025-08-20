@@ -3,6 +3,7 @@
   "index": 5,
   "year": 2022,
   "language": null,
+  "area": "matematica",
   "discipline": "matematica",
   "context": "Uma empresa de entregas possui três veículos: uma motocicleta, um carro e uma van. Cada veículo tem um custo por quilômetro rodado e uma capacidade máxima de carga, conforme o quadro.\n\n| Veículo | Custo por quilômetro (R$) | Capacidade máxima de carga (kg) |\n|---------|----------------------------|----------------------------------|\n| Motocicleta | 0,20 | 20 |\n| Carro | 0,55 | 450 |\n| Van | 0,90 | 1 000 |\n\nA empresa precisa entregar uma encomenda de 250 kg a um cliente que se encontra a 100 km de distância.",
   "files": [],

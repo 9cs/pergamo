@@ -15,13 +15,14 @@ interface Question {
   index: number
   year: number
   language: string | null
+  area: string
   discipline: string
   context: string
   files: string[]
   correctAlternative: string
   alternativesIntroduction: string
   alternatives: Alternative[]
-  dirName?: string // <-- Adicionado
+  dirName?: string
 }
 
 // Função para ler recursivamente todos os arquivos details.json
@@ -54,43 +55,28 @@ function readQuestionsRecursively(dir: string, questions: Question[] = []): Ques
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ subject: string }> },
+  { params }: { params: { subject: string } },
 ) {
   try {
-    // Aguardando os parâmetros
-    const { subject } = await params;
-
+    const { subject } = params
     const baseDir = path.join(process.cwd(), "public")
 
-    // Verifica se o diretório existe
     if (!fs.existsSync(baseDir)) {
       return NextResponse.json({ error: "Diretório de questões não encontrado" }, { status: 404 })
     }
 
-    // Lê todas as questões recursivamente
     const allQuestions = readQuestionsRecursively(baseDir)
 
-    // Filtra as questões pela disciplina e pelo nome da pasta
+    // Filtra por disciplina ou área
     const filteredQuestions = allQuestions.filter((q) => {
-      // Espanhol: pasta termina com -espanhol
-      if (subject === "espanhol") return q.dirName?.endsWith("-espanhol")
-      // Inglês: pasta termina com -ingles
-      if (subject === "ingles") return q.dirName?.endsWith("-ingles")
-      // Português: pasta NÃO termina com -espanhol nem -ingles
-      if (subject === "portugues") return (
-        !q.dirName?.endsWith("-espanhol") &&
-        !q.dirName?.endsWith("-ingles")
-      )
-      // Literatura: discipline linguagens e language null
-      if (subject === "literatura") return q.discipline === "linguagens" && q.language === null
-      // Outras disciplinas específicas
-      if (["filosofia", "historia", "geografia"].includes(subject)) return q.discipline === "ciencias-humanas"
-      if (["biologia", "fisica", "quimica"].includes(subject)) return q.discipline === "ciencias-natureza"
-      // Fallback: disciplina exata
+      // se usuário pedir área inteira
+      if (["ciencias-humanas","ciencias-natureza","linguagens","matematica"].includes(subject)) {
+        return q.area === subject
+      }
+      // caso normal: disciplina exata
       return q.discipline === subject
     })
 
-    // Ordena as questões por ano e depois pelo index
     filteredQuestions.sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year
       return a.index - b.index

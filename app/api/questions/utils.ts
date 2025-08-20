@@ -14,6 +14,7 @@ export interface Question {
   index: number
   year: number
   language: string | null
+  area: string
   discipline: string
   context: string
   files: string[]
@@ -81,8 +82,13 @@ export function getAvailableYears(questions: Question[]): number[] {
   return [...new Set(years)].sort((a, b) => a - b)
 }
 
+export function getAvailableAreas(questions: Question[]): string[] {
+  const areas = questions.map((q) => q.area)
+  return [...new Set(areas)].filter(Boolean).sort()
+} 
+
 // Função para obter disciplinas disponíveis
 export function getAvailableDisciplines(questions: Question[]): string[] {
   const disciplines = questions.map((q) => q.discipline)
-  return [...new Set(disciplines)].sort()
+  return [...new Set(disciplines)].filter(Boolean).sort()
 }
