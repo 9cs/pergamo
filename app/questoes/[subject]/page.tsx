@@ -223,31 +223,32 @@ export default function QuestionsPage() {
   const basePath = year && dirName ? `/${year}/questions/${dirName}` : ""
 
   return (
-  <div className="context-block whitespace-pre-line">
-  {parts.map((part, i) => (
-  <span key={i} className="inline-block">
-    {/* Renderiza o texto */}
-    {parseMarkdown(part)}
+    <div className="context-block whitespace-pre-line">
+      {parts.map((part, i) => (
+        <div key={i} className="mb-4">
+          {/* Renderiza o texto */}
+          {parseMarkdown(part)}
 
-    {/* Se houver marcador [imagem] neste ponto, insere a imagem correspondente */}
-    {i < parts.length - 1 && files[fileIndex] && (
-      <div className="my-4 flex justify-center">
-        <img
-          src={`${basePath}/${files[fileIndex++]}`}
-          alt={`Imagem da questão`}
-          className="max-w-full h-auto rounded-md"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement
-            target.src = "/placeholder.svg?height=300&width=400"
-          }}
-        />
-      </div>
-    )}
-  </span>
-  ))}
-  </div>
+          {/* Renderiza a imagem, se existir */}
+          {i < parts.length - 1 && files[fileIndex] && (
+            <div className="my-4 flex justify-center">
+              <img
+                src={`${basePath}/${files[fileIndex++]}`}
+                alt={`Imagem da questão`}
+                className="max-w-full h-auto rounded-md"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = "/placeholder.svg?height=300&width=400"
+                }}
+              />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   )
-  }
+}
+
 
 
   if (loading) {

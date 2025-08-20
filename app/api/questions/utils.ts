@@ -21,6 +21,7 @@ export interface Question {
   correctAlternative: string
   alternativesIntroduction: string
   alternatives: Alternative[]
+  dirName?: string 
 }
 
 // Função para ler recursivamente todos os arquivos details.json
