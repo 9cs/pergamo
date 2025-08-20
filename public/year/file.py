@@ -141,10 +141,7 @@ def build_prompt(contexto: str, alternativas: list) -> str:
     )
     return prompt
 
-# -------- Chamada ao modelo --------
 def call_model(prompt: str, retries: int = RETRIES, temperature: float = 0.0, timeout: int = 30) -> str:
-    if not OPENROUTER_API_KEY:
-        raise RuntimeError("Defina a variável de ambiente OPENROUTER_API_KEY.")
 
     payload = {
         "model": MODEL_ID,
