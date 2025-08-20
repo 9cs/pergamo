@@ -10,7 +10,6 @@ interface QuestionImageProps {
 export function QuestionImage({ src, alt }: QuestionImageProps) {
   const [isError, setIsError] = useState(false)
 
-  // Função para lidar com erros de carregamento de imagem
   const handleError = () => {
     console.error(`Erro ao carregar imagem: ${src}`)
     setIsError(true)
