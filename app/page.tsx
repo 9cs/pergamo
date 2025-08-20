@@ -2,28 +2,28 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { ModeToggle } from "@/components/mode-toggle"
-import { ArrowRight } from "lucide-react"
-
+import { ArrowRight, Brain, Microscope, Pen, BookOpen, Book, Scroll, Globe, MessageCircle, Flag, Layers, Activity, Hash, Atom, FlaskConical } from "lucide-react"
+  
 const mainSubjects = [
-  { id: "ciencias-humanas", name: "Ciências Humanas", icon: "🧠" },
-  { id: "ciencias-natureza", name: "Ciências da Natureza", icon: "🔬" },
-  { id: "linguagens", name: "Linguagens", icon: "📝" },
-  { id: "matematica", name: "Matemática", icon: "🔢" },
+  { id: "ciencias-humanas", name: "Ciências Humanas", icon: <Brain size={20} /> },
+  { id: "linguagens", name: "Linguagens", icon: <Pen size={20} /> },
+  { id: "ciencias-natureza", name: "Ciências da Natureza", icon: <Microscope size={20} /> },
+  { id: "matematica", name: "Matemática", icon: <Hash size={20} /> },
 ]
 
 const subSubjects = [
-  { id: "portugues", name: "Português", icon: "📚" },
-  { id: "literatura", name: "Literatura", icon: "📖" },
-  { id: "historia", name: "História", icon: "📜" },
-  { id: "geografia", name: "Geografia", icon: "🌎" },
-  { id: "filosofia", name: "Filosofia", icon: "🤔" },
-  { id: "ingles", name: "Inglês", icon: "🇬🇧" },
-  { id: "espanhol", name: "Espanhol", icon: "🇪🇸" },
-  { id: "biologia", name: "Biologia", icon: "🧬" },
-  { id: "matematica", name: "Matemática", icon: "🔢" },
-  { id: "fisica", name: "Física", icon: "⚛️" },
-  { id: "quimica", name: "Química", icon: "⚗️" },
-]
+  { id: "portugues", name: "Português", icon: <BookOpen size={20} /> },
+  { id: "literatura", name: "Literatura", icon: <Book size={20} /> },
+  { id: "historia", name: "História", icon: <Scroll size={20} /> },
+  { id: "geografia", name: "Geografia", icon: <Globe size={20} /> },
+  { id: "filosofia", name: "Filosofia", icon: <MessageCircle size={20} /> },
+  { id: "ingles", name: "Inglês", icon: <Flag size={20} /> },
+  { id: "espanhol", name: "Espanhol", icon: <Flag size={20} /> },
+  { id: "biologia", name: "Biologia", icon: <Layers size={20} /> },
+  { id: "matematica", name: "Matemática", icon: <Hash size={20} /> },
+  { id: "fisica", name: "Física", icon: <Atom size={20} /> },
+  { id: "quimica", name: "Química", icon: <FlaskConical size={20} /> },
+];
 
 export default function Home() {
   return (
