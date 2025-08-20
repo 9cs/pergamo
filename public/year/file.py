@@ -226,7 +226,7 @@ def processar_questao(questao_path: str):
         return False, None
 
 # -------- MAIN --------
-def main(modo_teste=False):
+def main(debug=False):
     contador = 0
     testes = []
 
@@ -249,7 +249,7 @@ def main(modo_teste=False):
                     ok, materia = processar_questao(questao_path)
                     if ok:
                         debug_print(f"[+] Questão {sub} ({ano}) - Matéria: {materia}")
-                        if modo_teste and len(testes) < 10:
+                        if debug and len(testes) < 10:
                             testes.append((ano, sub, materia))
                     else:
                         msg = f"[-] Questão {sub} ({ano}) - Erro: matéria não identificada"
@@ -263,17 +263,17 @@ def main(modo_teste=False):
                     flog.flush()
                 finally:
                     contador += 1
-                    if not modo_teste:
+                    if not debug:
                         if contador % 100 == 0:
                             debug_print(f"{contador} questões processadas...")
                         time.sleep(RATE_LIMIT_SECONDS)
 
-                if modo_teste and len(testes) >= 10:
+                if debug and len(testes) >= 10:
                     break
-            if modo_teste and len(testes) >= 10:
+            if debug and len(testes) >= 10:
                 break
 
-    if modo_teste:
+    if debug:
         debug_print("\n=== RESULTADOS DO MODO TESTE ===")
         for ano, sub, mat in testes:
             print(f"Ano {ano}, Questão {sub} -> {mat}")
@@ -281,4 +281,4 @@ def main(modo_teste=False):
         debug_print("Processamento finalizado.")
 
 if __name__ == "__main__":
-    main(modo_teste=False)
+    main(debug=False)

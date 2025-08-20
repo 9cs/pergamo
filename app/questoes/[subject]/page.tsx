@@ -73,7 +73,7 @@ export default function QuestionsPage() {
   const subject = params.subject as string
 
   const [questions, setQuestions] = useState<Question[]>([])
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number | null>(null)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [isAnswered, setIsAnswered] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -123,6 +123,12 @@ export default function QuestionsPage() {
         const data = await response.json()
         setQuestions(data)
         setSubjectName(getSubjectName(subject))
+        // Aleatoriza a primeira questão
+        if (data.length > 0) {
+          setCurrentQuestionIndex(Math.floor(Math.random() * data.length))
+        } else {
+          setCurrentQuestionIndex(null)
+        }
         setLoading(false)
       } catch (error) {
         console.error("Erro ao carregar questões:", error)
@@ -133,7 +139,7 @@ export default function QuestionsPage() {
     fetchQuestions()
   }, [subject])
 
-  const currentQuestion = questions[currentQuestionIndex]
+  const currentQuestion = currentQuestionIndex !== null ? questions[currentQuestionIndex] : undefined
 
   const handleSelectAnswer = (letter: string) => {
     if (!isAnswered) {
@@ -142,7 +148,7 @@ export default function QuestionsPage() {
   }
 
   const handleConfirmAnswer = () => {
-    if (selectedAnswer) {
+    if (selectedAnswer && currentQuestion) {
       setIsAnswered(true)
       setShowExplanation(false)
 
@@ -154,12 +160,15 @@ export default function QuestionsPage() {
         incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect,
       }))
 
-      setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionIndex))
+      if (currentQuestionIndex !== null) {
+        setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionIndex))
+      }
     }
   }
 
   const goToRandomUnanswered = () => {
-    const nextIdx = getRandomUnansweredIndex(questions.length, new Set([...answeredQuestions, currentQuestionIndex]))
+    const answeredSet = currentQuestionIndex !== null ? new Set([...answeredQuestions, currentQuestionIndex]) : new Set([...answeredQuestions]);
+    const nextIdx = getRandomUnansweredIndex(questions.length, answeredSet)
     if (nextIdx !== null) {
       setDirection(1)
       setShowExplanation(false)
@@ -176,7 +185,7 @@ export default function QuestionsPage() {
 
   const handleNextQuestion = () => {
     // Marca como respondida se não foi pulada
-    if (!answeredQuestions.has(currentQuestionIndex)) {
+    if (currentQuestionIndex !== null && !answeredQuestions.has(currentQuestionIndex)) {
       setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionIndex))
     }
     goToRandomUnanswered()
@@ -184,7 +193,9 @@ export default function QuestionsPage() {
 
   const handleSkipQuestion = () => {
     // Marca como respondida (pulada)
-    setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionIndex))
+    if (currentQuestionIndex !== null) {
+      setAnsweredQuestions((prev) => new Set(prev).add(currentQuestionIndex))
+    }
     goToRandomUnanswered()
   }
 
@@ -285,7 +296,7 @@ export default function QuestionsPage() {
     )
   }
 
-  if (questions.length === 0) {
+  if (!questions.length || currentQuestionIndex === null || !currentQuestion) {
     return (
       <div className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="flex justify-between items-center mb-8">
@@ -373,7 +384,7 @@ export default function QuestionsPage() {
   }
 
   // Quantas já foram respondidas/puladas
-  const totalRespondidas = answeredQuestions.size + (isAnswered && !answeredQuestions.has(currentQuestionIndex) ? 1 : 0)
+  const totalRespondidas = answeredQuestions.size + (isAnswered && currentQuestionIndex !== null && !answeredQuestions.has(currentQuestionIndex) ? 1 : 0)
 
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in">
