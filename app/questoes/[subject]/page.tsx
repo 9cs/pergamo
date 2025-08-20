@@ -220,7 +220,7 @@ export default function QuestionsPage() {
   // Caminho base para a pasta da questão (já que está em /public)
   // Exemplo: /public/2010/questions/102/233eafdb.jpg
   let fileIndex = 0
-  const basePath = year && dirName ? `/public/${year}/questions/${dirName}` : ""
+  const basePath = year && dirName ? `/${year}/questions/${dirName}` : ""
 
   return (
   <div className="context-block whitespace-pre-line">
