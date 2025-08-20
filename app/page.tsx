@@ -3,26 +3,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link"
 import { ModeToggle } from "@/components/mode-toggle"
 import { ArrowRight, Brain, Microscope, Pen, BookOpen, Book, Scroll, Globe, MessageCircle, Flag, Layers, Activity, Hash, Atom, FlaskConical } from "lucide-react"
-  
+
+const iconSize = 24
+
 const mainSubjects = [
-  { id: "ciencias-humanas", name: "Ciências Humanas", icon: <Brain size={20} /> },
-  { id: "linguagens", name: "Linguagens", icon: <Pen size={20} /> },
-  { id: "ciencias-natureza", name: "Ciências da Natureza", icon: <Microscope size={20} /> },
-  { id: "matematica", name: "Matemática", icon: <Hash size={20} /> },
+  { id: "ciencias-humanas", name: "Ciências Humanas", icon: <Brain size={iconSize} /> },
+  { id: "linguagens", name: "Linguagens", icon: <Pen size={iconSize} /> },
+  { id: "ciencias-natureza", name: "Ciências da Natureza", icon: <Microscope size={iconSize} /> },
+  { id: "matematica", name: "Matemática", icon: <Hash size={iconSize} /> },
 ]
 
 const subSubjects = [
-  { id: "portugues", name: "Português", icon: <BookOpen size={20} /> },
-  { id: "literatura", name: "Literatura", icon: <Book size={20} /> },
-  { id: "historia", name: "História", icon: <Scroll size={20} /> },
-  { id: "geografia", name: "Geografia", icon: <Globe size={20} /> },
-  { id: "filosofia", name: "Filosofia", icon: <MessageCircle size={20} /> },
-  { id: "ingles", name: "Inglês", icon: <Flag size={20} /> },
-  { id: "espanhol", name: "Espanhol", icon: <Flag size={20} /> },
-  { id: "biologia", name: "Biologia", icon: <Layers size={20} /> },
-  { id: "matematica", name: "Matemática", icon: <Hash size={20} /> },
-  { id: "fisica", name: "Física", icon: <Atom size={20} /> },
-  { id: "quimica", name: "Química", icon: <FlaskConical size={20} /> },
+  { id: "portugues", name: "Português", icon: <BookOpen size={iconSize} /> },
+  { id: "literatura", name: "Literatura", icon: <Book size={iconSize} /> },
+  { id: "historia", name: "História", icon: <Scroll size={iconSize} /> },
+  { id: "geografia", name: "Geografia", icon: <Globe size={iconSize} /> },
+  { id: "filosofia", name: "Filosofia", icon: <MessageCircle size={iconSize} /> },
+  { id: "ingles", name: "Inglês", icon: <Flag size={iconSize} /> },
+  { id: "espanhol", name: "Espanhol", icon: <Flag size={iconSize} /> },
+  { id: "biologia", name: "Biologia", icon: <Layers size={iconSize} /> },
+  { id: "matematica", name: "Matemática", icon: <Hash size={iconSize} /> },
+  { id: "fisica", name: "Física", icon: <Atom size={iconSize} /> },
+  { id: "quimica", name: "Química", icon: <FlaskConical size={iconSize} /> },
 ];
 
 export default function Home() {
