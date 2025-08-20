@@ -1,14 +1,7 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
+module.exports = {
+  plugins: {
+    // Ative o autoprefixer e o tailwindcss se estiver usando
+    tailwindcss: {},
+    autoprefixer: {},
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-}
-
-export default nextConfig
+};
