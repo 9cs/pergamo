@@ -20,6 +20,7 @@ const subSubjects = [
   { id: "ingles", name: "Inglês", icon: "🇬🇧" },
   { id: "espanhol", name: "Espanhol", icon: "🇪🇸" },
   { id: "biologia", name: "Biologia", icon: "🧬" },
+  { id: "matematica", name: "Matemática", icon: "🔢" },
   { id: "fisica", name: "Física", icon: "⚛️" },
   { id: "quimica", name: "Química", icon: "⚗️" },
 ]
