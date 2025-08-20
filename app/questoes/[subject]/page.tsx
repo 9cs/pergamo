@@ -246,9 +246,9 @@ export default function QuestionsPage() {
     // Divide o texto em partes pelo marcador [imagem]
     const parts = context.split("[imagem]")
 
-    // Caminho base para a pasta da questão (já que está em /public)
-    let fileIndex = 0
-    const basePath = year && dirName ? `/${year}/questions/${dirName}` : ""
+  // Caminho base para a pasta da questão (agora está em /public/years/ANO/questions/dirName)
+  let fileIndex = 0
+  const basePath = year && dirName ? `/year/${year}/questions/${dirName}` : ""
 
     return (
       <div className="context-block whitespace-pre-line">
@@ -427,19 +427,7 @@ export default function QuestionsPage() {
               currentQuestion.year
             )}
 
-            {currentQuestion.files.length > 0 && !currentQuestion.context.includes("![](") && (
-              <div className="my-4 flex justify-center">
-                <img
-                  src={currentQuestion.files[0] || "/placeholder.svg?height=300&width=400"}
-                  alt="Imagem da questão"
-                  className="max-w-full h-auto rounded-md"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.src = "/placeholder.svg?height=300&width=400"
-                  }}
-                />
-              </div>
-            )}
+            {/* Imagem da questão já é renderizada por formatContext, não precisa duplicar aqui */}
 
             <p className="font-medium mt-4 mb-2">{parseMarkdown(currentQuestion.alternativesIntroduction)}</p>
 
