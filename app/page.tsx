@@ -1,152 +1,194 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
-import { ModeToggle } from "@/components/mode-toggle"
-import { ArrowRight, Brain, Microscope, Pen, BookOpen, Book, Scroll, Globe, MessageCircle, Flag, Layers, Activity, Hash, Atom, FlaskConical } from "lucide-react"
 import React from "react"
+import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  User,
+  BookOpen,
+  Microscope,
+  Calculator,
+  FileText,
+  Globe,
+  Clock,
+  Flag,
+  Dna,
+  Atom,
+  Languages,
+  Mountain,
+  ChevronRight
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import Footer from "@/components/Footer"
 
-const iconSize = 24
-
-const mainSubjects = [
-  { id: "ciencias-humanas", name: "Ciências Humanas", icon: <Brain size={iconSize} /> },
-  { id: "linguagens", name: "Linguagens", icon: <Pen size={iconSize} /> },
-  { id: "ciencias-natureza", name: "Ciências da Natureza", icon: <Microscope size={iconSize} /> },
-  { id: "matematica", name: "Matemática", icon: <Hash size={iconSize} /> },
+const areas = [
+  {
+  key: "ciencias-humanas",
+    title: "Ciências Humanas",
+    icon: <User className="h-6 w-6" />,
+    color: "humanities",
+    subjects: ["historia", "geografia", "filosofia", "sociologia"]
+  },
+  {
+  key: "linguagens",
+    title: "Linguagens",
+    icon: <BookOpen className="h-6 w-6" />,
+    color: "languages", 
+    subjects: ["portugues", "literatura", "ingles", "espanhol", "educacao-fisica"]
+  },
+  {
+  key: "ciencias-natureza",
+    title: "Ciências da Natureza",
+    icon: <Microscope className="h-6 w-6" />,
+    color: "nature",
+    subjects: ["biologia", "quimica", "fisica"]
+  },
+  {
+  key: "matematica",
+    title: "Matemática",
+    icon: <Calculator className="h-6 w-6" />,
+    color: "mathematics",
+    subjects: ["matematica"]
+  }
 ]
 
-const subSubjects = [
-  { id: "portugues", name: "Português", icon: <BookOpen size={iconSize} /> },
-  { id: "literatura", name: "Literatura", icon: <Book size={iconSize} /> },
-  { id: "historia", name: "História", icon: <Scroll size={iconSize} /> },
-  { id: "geografia", name: "Geografia", icon: <Globe size={iconSize} /> },
-  { id: "filosofia", name: "Filosofia", icon: <MessageCircle size={iconSize} /> },
-  { id: "ingles", name: "Inglês", icon: <Flag size={iconSize} /> },
-  { id: "espanhol", name: "Espanhol", icon: <Flag size={iconSize} /> },
-  { id: "biologia", name: "Biologia", icon: <Layers size={iconSize} /> },
-  { id: "matematica", name: "Matemática", icon: <Hash size={iconSize} /> },
-  { id: "fisica", name: "Física", icon: <Atom size={iconSize} /> },
-  { id: "quimica", name: "Química", icon: <FlaskConical size={iconSize} /> },
-];
-
-const subjectColors: Record<string, string> = {
-  "ciencias-humanas": "#8B5CF6",
-  "linguagens": "#F59E0B",
-  "ciencias-natureza": "#14B8A6",
-  "matematica": "#F97316",
-  "portugues": "#F59E0B",
-  "literatura": "#EF4444",
-  "historia": "#8B5CF6",
-  "geografia": "#3B82F6",
-  "filosofia": "#10B981",
-  "ingles": "#2563EB",
-  "espanhol": "#DC2626",
-  "biologia": "#14B8A6",
-  "fisica": "#A855F7",
-  "quimica": "#F43F5E",
-}
+const subjects = [
+  { key: "portugues", title: "Português", icon: <FileText className="h-5 w-5" />, color: "languages", count: 245 },
+  { key: "literatura", title: "Literatura", icon: <BookOpen className="h-5 w-5" />, color: "languages", count: 156 },
+  { key: "ingles", title: "Inglês", icon: <Languages className="h-5 w-5" />, color: "languages", count: 89 },
+  { key: "espanhol", title: "Espanhol", icon: <Flag className="h-5 w-5" />, color: "languages", count: 76 },
+  { key: "historia", title: "História", icon: <Clock className="h-5 w-5" />, color: "humanities", count: 198 },
+  { key: "geografia", title: "Geografia", icon: <Globe className="h-5 w-5" />, color: "humanities", count: 167 },
+  { key: "filosofia", title: "Filosofia", icon: <User className="h-5 w-5" />, color: "humanities", count: 134 },
+  { key: "sociologia", title: "Sociologia", icon: <User className="h-5 w-5" />, color: "humanities", count: 112 },
+  { key: "biologia", title: "Biologia", icon: <Dna className="h-5 w-5" />, color: "nature", count: 189 },
+  { key: "quimica", title: "Química", icon: <Atom className="h-5 w-5" />, color: "nature", count: 156 },
+  { key: "fisica", title: "Física", icon: <Mountain className="h-5 w-5" />, color: "nature", count: 143 },
+  { key: "matematica", title: "Matemática", icon: <Calculator className="h-5 w-5" />, color: "mathematics", count: 267 }
+]
 
 export default function Home() {
   return (
-    <main className="container mx-auto px-4 py-8 animate-fade-in">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-neutral-800 dark:text-neutral-200 tracking-tight">
-          Questões ENEM
-        </h1>
-        <ModeToggle />
-      </div>
-
-      <Card className="mb-8 border-2 border-neutral-200 dark:border-neutral-800 shadow-md animate-fade-in">
-        <CardHeader>
-          <CardTitle className="text-2xl text-neutral-700 dark:text-neutral-300">
-            Bem-vindo ao Simulador de Questões do ENEM
-          </CardTitle>
-          <CardDescription className="text-lg text-neutral-600 dark:text-neutral-400">
-            Selecione uma matéria abaixo para começar a responder questões e testar seus conhecimentos.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="mb-4 text-neutral-600 dark:text-neutral-400">
-            Este simulador permite que você pratique com questões de anos anteriores do ENEM, receba feedback imediato
-            sobre suas respostas e acompanhe seu desempenho.
-          </p>
-        </CardContent>
-      </Card>
-
-      <h2 className="text-2xl font-semibold mb-4 text-neutral-700 dark:text-neutral-300 animate-fade-in">
-        Áreas
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {mainSubjects.map((subject) => {
-          const areaColor = subjectColors[subject.id] || undefined;
-          return (
-            <Link
-              href={`/questoes/${subject.id}`}
-              key={subject.id}
-              aria-label={`Ir para questões de ${subject.name}`}
-              tabIndex={0}
-            >
+    <div className="min-h-screen bg-background">
+      {/* Header com gradiente */}
+      <header className="w-full bg-gradient-to-r from-sky-400 via-green-300 to-blue-400 py-12 mb-0">
+        <div className="container mx-auto flex flex-col items-center justify-center gap-2">
+          <h1 className="text-5xl font-extrabold text-neutral-900 mb-2">Questões ENEM</h1>
+          <p className="text-lg text-neutral-800 mb-2">Bem-vindo ao Simulador de Questões do ENEM</p>
+          <p className="text-base text-neutral-700 mb-2">Selecione uma matéria abaixo para começar a responder questões e testar seus conhecimentos.</p>
+        </div>
+      </header>
+      <main className="bg-[#131a24] min-h-[60vh] w-full pb-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-4 text-white pt-8">Áreas</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {areas.map((area) => (
               <Card
-                className="h-full subject-card bg-white dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-800 hover:border-primary dark:hover:border-primary focus-within:ring-2 focus-within:ring-primary/60 transition-all duration-200 shadow-sm hover:shadow-lg scale-100 hover:scale-[1.03]"
+                key={area.title}
+                className="group border border-border transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                style={{
+                  ['--hover-color' as any]: `hsl(var(--${area.color}))`,
+                  backgroundImage: 'var(--gradient-card)',
+                } as React.CSSProperties}
               >
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <span className="subject-icon text-2xl">
-                      {React.cloneElement(subject.icon, { color: areaColor })}
-                    </span>
-                    <span>{subject.name}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    className="w-full button-primary bg-neutral-800 hover:bg-neutral-700 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-neutral-300 flex items-center justify-center gap-2"
-                    tabIndex={-1}
-                  >
-                    Iniciar <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-          )
-        })}
-      </div>
+                  <CardContent className="p-8 text-center">
+                    <div className="mx-auto mb-4 w-14 h-14 rounded-full flex items-center justify-center bg-black/20">
+                      <div className={cn(
+                        `w-14 h-14 rounded-full flex items-center justify-center transition-colors duration-300`
+                      )}
+                      style={{ backgroundColor: `hsl(var(--${area.color}) / 0.2)` }}
+                    >
+                        {React.cloneElement(area.icon, { className: 'h-6 w-6', style: { color: `hsl(var(--${area.color}))` } })}
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-lg text-white group-hover:text-primary transition-colors mb-2">
+                      {area.title}
+                    </h3>
+                    <Link href={`/questoes/${area.key}`} tabIndex={-1} legacyBehavior passHref>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                          "mt-2 w-full justify-center font-semibold transition-all duration-200",
+                          "rounded-lg border-none outline-none focus:outline-none subject-btn",
+                          "text-white",
+                        )}
+                        style={{
+                          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        Iniciar
+                        <ChevronRight className="h-4 w-4 ml-2 transition-transform" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+            ))}
+          </div>
 
-      <h2 className="text-2xl font-semibold mb-4 text-neutral-700 dark:text-neutral-300 animate-fade-in">
-        Matérias
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {subSubjects.map((subject) => {
-          const color = subjectColors[subject.id] || undefined;
-          return (
-            <Link
-              href={`/questoes/${subject.id}`}
-              key={subject.id}
-              aria-label={`Ir para questões de ${subject.name}`}
-              tabIndex={0}
-            >
+          <h2 className="text-2xl font-bold mb-4 text-white">Matérias</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {subjects.map((subject) => (
               <Card
-                className="h-full subject-card bg-white dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-800 hover:border-primary dark:hover:border-primary focus-within:ring-2 focus-within:ring-primary/60 transition-all duration-200 shadow-sm hover:shadow-lg scale-100 hover:scale-[1.03]"
+                key={subject.key}
+                className="group border border-border transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                style={{
+                  ['--hover-color' as any]: `hsl(var(--${subject.color}))`,
+                  backgroundImage: 'var(--gradient-card)',
+                } as React.CSSProperties}
               >
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <span className="subject-icon text-2xl">
-                      {React.cloneElement(subject.icon, { color })}
-                    </span>
-                    <span>{subject.name}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    className="w-full button-primary bg-neutral-800 hover:bg-neutral-700 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-neutral-300 flex items-center justify-center gap-2"
-                    tabIndex={-1}
-                  >
-                    Iniciar <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-          )
-        })}
-      </div>
-    </main>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-black/20">
+                        <div className={cn(
+                          `w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300`
+                        )}
+                        style={{ backgroundColor: `hsl(var(--${subject.color}) / 0.2)` }}
+                      >
+                          {React.cloneElement(subject.icon, { className: 'h-5 w-5', style: { color: `hsl(var(--${subject.color}))` } })}
+                        </div>
+                      </div>
+                      {/* <Badge variant="secondary" className="text-xs">{subject.count} questões</Badge> */}
+                    </div>
+                    <h3 className="text-lg font-bold mb-3 text-white group-hover:text-primary transition-colors">
+                      {subject.title}
+                    </h3>
+                    <Link href={`/questoes/${subject.key}`} tabIndex={-1} legacyBehavior passHref>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                          "w-full flex items-center justify-between p-3 font-semibold transition-all duration-200",
+                          "rounded-lg border-none outline-none focus:outline-none subject-btn",
+                          "text-white",
+                        )}
+                        style={{
+                          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        Iniciar
+                        <ChevronRight className="h-4 w-4 ml-2 transition-transform" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+            ))}
+          </div>
+
+          <Card className="mt-12 border border-border" style={{ backgroundImage: 'var(--gradient-card)' }}>
+            <CardHeader>
+              <CardTitle className="text-center text-white">Como funciona?</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-300 max-w-2xl mx-auto">
+                Este simulador permite que você pratique com questões de anos anteriores do ENEM, 
+                receba feedback imediato sobre suas respostas e acompanhe seu desempenho.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+      <Footer />
+    </div>
   )
 }

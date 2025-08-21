@@ -55,10 +55,10 @@ function readQuestionsRecursively(dir: string, questions: Question[] = []): Ques
 
 export async function GET(
   request: Request,
-  { params }: { params: { subject: string } },
+  { params }: { params: Promise<{ subject: string }> },
 ) {
   try {
-    const { subject } = params
+    const { subject } = await params
     const baseDir = path.join(process.cwd(), "public")
 
     if (!fs.existsSync(baseDir)) {

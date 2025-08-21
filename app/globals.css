@@ -2,85 +2,109 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
+/* ENEM Questions Design System - Modern Educational Interface */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-
-    --primary: 0 0% 45%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 20%;
-
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 20%;
-
-    --success: 142 60% 45%;
-    --success-foreground: 0 0% 98%;
-
+    /* Educational Color Palette */
+    --background: 220 26% 14%;
+    --foreground: 210 40% 98%;
+    
+    --card: 220 21% 18%;
+    --card-foreground: 210 40% 98%;
+    
+    --primary: 217 91% 60%;
+    --primary-foreground: 220 26% 14%;
+    
+    --secondary: 220 14% 25%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 220 14% 22%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+    
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
+    --warning-foreground: 220 26% 14%;
+    
+    --border: 220 13% 28%;
+    --input: 220 13% 28%;
+    --ring: 217 91% 60%;
+    
+    /* Subject Colors */
+    --humanities: 269 84% 68%;
+    --languages: 38 92% 50%;
+    --nature: 142 76% 36%;
+    --mathematics: 24 90% 53%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(142 76% 36%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(220 21% 18%) 0%, hsl(220 14% 25%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 70% 45%) 100%);
+    --gradient-error: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(0 70% 50%) 100%);
+    
+    --radius: 0.75rem;
 
-    --destructive: 0 70% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --sidebar-background: 0 0% 98%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 45%;
+    --sidebar-foreground: 240 5.3% 26.1%;
 
-    --radius: 0.5rem;
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 95%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 15%;
-    --card-foreground: 0 0% 95%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 0 0% 65%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 70%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 0 0% 20%;
-    --accent-foreground: 0 0% 95%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
-    --success: 142 60% 45%;
-    --success-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
-
-    --destructive: 0 70% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 65%;
+    --border: hsl(226 28.7% 20.4%);
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -88,190 +112,33 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/* Animações mais sutis */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Subject button / card hover color using CSS variable set inline on Card */
+.subject-btn {
+  transition: background-color 200ms ease, transform 200ms ease, color 200ms ease;
+  /* estado dormente: um pouco mais claro que o card */
+  background-color: hsl(var(--card) / 0.9);
 }
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* Quando o card estiver em hover/focus, pintar o botão com a cor da matéria */
+.group:hover .subject-btn,
+.group:focus-within .subject-btn {
+  background-color: var(--hover-color) !important;
+  color: white !important;
+  transform: translateY(-4px);
 }
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-  }
+/* Quando o próprio botão for hover ou focus, manter a cor da matéria */
+.subject-btn:hover,
+.subject-btn:focus {
+  background-color: var(--hover-color) !important;
+  color: white !important;
+  transform: translateY(-4px);
 }
-
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-/* Classes de animação */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-.animate-pulse {
-  animation: pulse 2.5s infinite;
-}
-
-.animate-bounce-soft {
-  animation: bounce 2.5s infinite;
-}
-
-/* Transições */
-.page-transition {
-  transition: all 0.2s ease;
-}
-
-/* Estilos para cards de matérias */
-.subject-card {
-  transition: all 0.2s ease;
-  border-width: 2px;
-  border-color: hsl(var(--border));
-}
-
-.subject-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  border-color: hsl(var(--primary));
-}
-
-.subject-card:hover .subject-icon {
-  background-color: hsl(var(--primary) / 0.2);
-  transform: scale(1.05);
-}
-
-/* Estilos para ícones de matérias */
-.subject-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  margin-right: 0.5rem;
-  font-size: 1.25rem;
-  background-color: hsl(var(--secondary));
-  transition: all 0.2s ease;
-}
-
-/* Estilos para questões */
-.question-card {
-  transition: all 0.2s ease;
-}
-
-.question-number {
-  font-weight: bold;
-  color: hsl(var(--primary));
-}
-
-.alternative-item {
-  transition: all 0.15s ease;
-}
-
-.alternative-item:hover:not(.answered) {
-  background-color: hsl(var(--secondary) / 0.5);
-}
-
-.correct-answer {
-  animation: pulse 1s;
-  background-color: hsl(var(--success) / 0.2);
-  border-color: hsl(var(--success));
-}
-
-.incorrect-answer {
-  animation: pulse 1s;
-  background-color: hsl(var(--destructive) / 0.2);
-  border-color: hsl(var(--destructive));
-}
-
-/* Estilos para botões */
-.button-primary {
-  transition: all 0.15s ease;
-}
-
-.button-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-}
-
-.button-primary:active {
-  transform: translateY(0);
-}
-
-/* Estilos para títulos */
-.title-gradient {
-  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-/* Estilos para estatísticas */
-.stats-item {
-  transition: all 0.2s ease;
-}
-
-.stats-item:hover {
-  transform: translateY(-1px);
-}
-
-/* Estilos para explicação */
-.explanation-container {
-  border-left: 4px solid hsl(var(--primary));
-  padding-left: 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  background-color: hsl(var(--secondary) / 0.3);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  transition: all 0.2s ease;
-}
-
-.explanation-title {
-  font-weight: bold;
-  color: hsl(var(--primary));
-  margin-bottom: 0.5rem;
-}
-
-.explanation-content {
-  font-size: 0.95rem;
-  line-height: 1.5;
+.group:hover,
+.group:focus-within {
+  transform: translateY(-4px);
 }
