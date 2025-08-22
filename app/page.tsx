@@ -1,4 +1,6 @@
-import React from "react"
+"use client"
+
+import React, { useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -16,40 +18,49 @@ import {
   Atom,
   Languages,
   Mountain,
-  ChevronRight
+  ChevronRight,
+  GraduationCap,
+  Target,
+  TrendingUp,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Footer from "@/components/Footer"
+import LanguageModal from "@/components/LanguageModal"
 
 const areas = [
   {
-  key: "ciencias-humanas",
+    key: "ciencias-humanas",
     title: "Ciências Humanas",
     icon: <User className="h-6 w-6" />,
     color: "humanities",
-    subjects: ["historia", "geografia", "filosofia", "sociologia"]
+    subjects: ["historia", "geografia", "filosofia", "sociologia"],
+    description: "História, Geografia, Filosofia e Sociologia",
   },
   {
-  key: "linguagens",
+    key: "linguagens",
     title: "Linguagens",
     icon: <BookOpen className="h-6 w-6" />,
-    color: "languages", 
-    subjects: ["portugues", "literatura", "ingles", "espanhol", "educacao-fisica"]
+    color: "languages",
+    subjects: ["portugues", "literatura", "ingles", "espanhol", "educacao-fisica"],
+    description: "Português, Literatura, Inglês e Espanhol",
   },
   {
-  key: "ciencias-natureza",
+    key: "ciencias-natureza",
     title: "Ciências da Natureza",
     icon: <Microscope className="h-6 w-6" />,
     color: "nature",
-    subjects: ["biologia", "quimica", "fisica"]
+    subjects: ["biologia", "quimica", "fisica"],
+    description: "Biologia, Química e Física",
   },
   {
-  key: "matematica",
+    key: "matematica",
     title: "Matemática",
     icon: <Calculator className="h-6 w-6" />,
     color: "mathematics",
-    subjects: ["matematica"]
-  }
+    subjects: ["matematica"],
+    description: "Matemática e suas Tecnologias",
+  },
 ]
 
 const subjects = [
@@ -64,131 +75,240 @@ const subjects = [
   { key: "biologia", title: "Biologia", icon: <Dna className="h-5 w-5" />, color: "nature", count: 189 },
   { key: "quimica", title: "Química", icon: <Atom className="h-5 w-5" />, color: "nature", count: 156 },
   { key: "fisica", title: "Física", icon: <Mountain className="h-5 w-5" />, color: "nature", count: 143 },
-  { key: "matematica", title: "Matemática", icon: <Calculator className="h-5 w-5" />, color: "mathematics", count: 267 }
+  {
+    key: "matematica",
+    title: "Matemática",
+    icon: <Calculator className="h-5 w-5" />,
+    color: "mathematics",
+    count: 267,
+  },
 ]
 
 export default function Home() {
+  const [showLanguageModal, setShowLanguageModal] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
+
+  const handleStartStudies = (areaKey: string) => {
+    // Para todas as áreas, navegar normalmente
+    window.location.href = `/questoes/${areaKey}`
+  }
+
+  const handleLanguageSelect = (language: string) => {
+    setSelectedLanguage(language)
+  }
+
+  const resetLanguageFilter = () => {
+    setSelectedLanguage(null)
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header com gradiente */}
-      <header className="w-full bg-gradient-to-r from-sky-400 via-green-300 to-blue-400 py-12 mb-0">
-        <div className="container mx-auto flex flex-col items-center justify-center gap-2">
-          <h1 className="text-5xl font-extrabold text-neutral-900 mb-2">Questões ENEM</h1>
-          <p className="text-lg text-neutral-800 mb-2">Bem-vindo ao Simulador de Questões do ENEM</p>
-          <p className="text-base text-neutral-700 mb-2">Selecione uma matéria abaixo para começar a responder questões e testar seus conhecimentos.</p>
+      <header className="relative w-full hero-gradient py-16 sm:py-20 lg:py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center text-center space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <GraduationCap className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white">Questões ENEM</h1>
+            </div>
+            <p className="text-lg sm:text-xl lg:text-2xl text-white/90 max-w-2xl leading-relaxed">
+              Prepare-se para o ENEM com questões de anos anteriores
+            </p>
+            <p className="text-sm sm:text-base lg:text-lg text-white/80 max-w-3xl leading-relaxed">
+              Pratique com questões reais, receba feedback imediato e acompanhe seu progresso em todas as áreas do
+              conhecimento.
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-8">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <Target className="h-4 w-4 text-white" />
+                <span className="text-white font-medium text-sm sm:text-base">2500+ Questões</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <TrendingUp className="h-4 w-4 text-white" />
+                <span className="text-white font-medium text-sm sm:text-base">Feedback Imediato</span>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
-      <main className="bg-[#131a24] min-h-[60vh] w-full pb-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-4 text-white pt-8">Áreas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {areas.map((area) => (
-              <Card
-                key={area.title}
-                className="group border border-border transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                style={{
-                  ['--hover-color' as any]: `hsl(var(--${area.color}))`,
-                  backgroundImage: 'var(--gradient-card)',
-                } as React.CSSProperties}
-              >
-                  <CardContent className="p-8 text-center">
-                    <div className="mx-auto mb-4 w-14 h-14 rounded-full flex items-center justify-center bg-black/20">
-                      <div className={cn(
-                        `w-14 h-14 rounded-full flex items-center justify-center transition-colors duration-300`
-                      )}
-                      style={{ backgroundColor: `hsl(var(--${area.color}) / 0.2)` }}
-                    >
-                        {React.cloneElement(area.icon, { className: 'h-6 w-6', style: { color: `hsl(var(--${area.color}))` } })}
-                      </div>
-                    </div>
-                    <h3 className="font-bold text-lg text-white group-hover:text-primary transition-colors mb-2">
-                      {area.title}
-                    </h3>
-                    <Link href={`/questoes/${area.key}`} tabIndex={-1} legacyBehavior passHref>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={cn(
-                          "mt-2 w-full justify-center font-semibold transition-all duration-200",
-                          "rounded-lg border-none outline-none focus:outline-none subject-btn",
-                          "text-white",
-                        )}
-                        style={{
-                          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
-                        }}
-                      >
-                        Iniciar
-                        <ChevronRight className="h-4 w-4 ml-2 transition-transform" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-            ))}
-          </div>
 
-          <h2 className="text-2xl font-bold mb-4 text-white">Matérias</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {subjects.map((subject) => (
-              <Card
-                key={subject.key}
-                className="group border border-border transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                style={{
-                  ['--hover-color' as any]: `hsl(var(--${subject.color}))`,
-                  backgroundImage: 'var(--gradient-card)',
-                } as React.CSSProperties}
-              >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-black/20">
-                        <div className={cn(
-                          `w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300`
-                        )}
-                        style={{ backgroundColor: `hsl(var(--${subject.color}) / 0.2)` }}
-                      >
-                          {React.cloneElement(subject.icon, { className: 'h-5 w-5', style: { color: `hsl(var(--${subject.color}))` } })}
-                        </div>
-                      </div>
-                      {/* <Badge variant="secondary" className="text-xs">{subject.count} questões</Badge> */}
-                    </div>
-                    <h3 className="text-lg font-bold mb-3 text-white group-hover:text-primary transition-colors">
-                      {subject.title}
-                    </h3>
-                    <Link href={`/questoes/${subject.key}`} tabIndex={-1} legacyBehavior passHref>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={cn(
-                          "w-full flex items-center justify-between p-3 font-semibold transition-all duration-200",
-                          "rounded-lg border-none outline-none focus:outline-none subject-btn",
-                          "text-white",
-                        )}
-                        style={{
-                          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
-                        }}
-                      >
-                        Iniciar
-                        <ChevronRight className="h-4 w-4 ml-2 transition-transform" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-            ))}
-          </div>
-
-          <Card className="mt-12 border border-border" style={{ backgroundImage: 'var(--gradient-card)' }}>
-            <CardHeader>
-              <CardTitle className="text-center text-white">Como funciona?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-gray-300 max-w-2xl mx-auto">
-                Este simulador permite que você pratique com questões de anos anteriores do ENEM, 
-                receba feedback imediato sobre suas respostas e acompanhe seu desempenho.
+      <main className="bg-background min-h-screen">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          <section className="mb-16 sm:mb-20">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4">Áreas do Conhecimento</h2>
+              <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                Escolha uma área para começar seus estudos
               </p>
-            </CardContent>
-          </Card>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {areas.map((area) => (
+                <Card
+                  key={area.title}
+                  className={cn("area-card card-hover group cursor-pointer", "h-full min-h-[200px] sm:min-h-[220px]")}
+                  style={
+                    {
+                      ["--hover-color" as any]: `hsl(var(--${area.color}))`,
+                    } as React.CSSProperties
+                  }
+                >
+                  <CardContent className="p-6 sm:p-8 h-full flex flex-col justify-between">
+                    <div className="text-center mb-6">
+                      <div
+                        className="mx-auto mb-4 w-16 h-16 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center"
+                        style={{ backgroundColor: `hsl(var(--${area.color}) / 0.15)` }}
+                      >
+                        {React.cloneElement(area.icon, {
+                          className: "h-7 w-7 sm:h-8 sm:w-8",
+                          style: { color: `hsl(var(--${area.color}))` },
+                        })}
+                      </div>
+                      <h3 className="font-bold text-lg sm:text-xl text-foreground mb-2 transition-colors">
+                        {area.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{area.description}</p>
+                    </div>
+
+                    <Button className="subject-btn w-full" size="lg" onClick={() => handleStartStudies(area.key)}>
+                      Começar Estudos
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          <section className="mb-16 sm:mb-20">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4">Matérias Específicas</h2>
+              <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                Pratique questões por disciplina
+              </p>
+              {selectedLanguage && selectedLanguage !== "all" && (
+                <div className="mt-4">
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    Mostrando apenas as disciplinas de Linguagens: Português, Literatura e {selectedLanguage === "ingles" ? "Inglês" : "Espanhol"}
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={resetLanguageFilter}
+                    className="mt-2"
+                  >
+                    Ver todas as matérias
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {subjects
+                .filter(subject => {
+                  // Se nenhuma linguagem foi selecionada, mostrar todas as matérias
+                  if (!selectedLanguage || selectedLanguage === "all") return true;
+                  
+                  // Se foi selecionada uma linguagem, mostrar apenas as 3 disciplinas de linguagens
+                  if (selectedLanguage === "ingles") {
+                    // Mostrar português, literatura e inglês
+                    return subject.key === "portugues" || subject.key === "literatura" || subject.key === "ingles";
+                  }
+                  
+                  if (selectedLanguage === "espanhol") {
+                    // Mostrar português, literatura e espanhol
+                    return subject.key === "portugues" || subject.key === "literatura" || subject.key === "espanhol";
+                  }
+                  
+                  return true;
+                })
+                .map((subject) => (
+                <Card
+                  key={subject.key}
+                  className={cn("area-card card-hover group cursor-pointer", "h-full min-h-[160px] sm:min-h-[180px]")}
+                  style={
+                    {
+                      ["--hover-color" as any]: `hsl(var(--${subject.color}))`,
+                    } as React.CSSProperties
+                  }
+                >
+                  <CardContent className="p-4 sm:p-6 h-full flex flex-col justify-between">
+                    <div className="flex items-start justify-between mb-4">
+                      <div
+                        className="flex items-center justify-center w-12 h-12 rounded-xl"
+                        style={{ backgroundColor: `hsl(var(--${subject.color}) / 0.15)` }}
+                      >
+                        {React.cloneElement(subject.icon, {
+                          className: "h-5 w-5",
+                          style: { color: `hsl(var(--${subject.color}))` },
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="flex-1 mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground transition-colors">
+                        {subject.title}
+                      </h3>
+                    </div>
+
+                    <Link href={`/questoes/${subject.key}`} className="w-full">
+                      <Button className="subject-btn w-full" size="sm">
+                        Praticar
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <Card className="area-card border-border/50 bg-card">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-xl sm:text-2xl lg:text-3xl text-foreground">Como Funciona?</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-foreground text-base sm:text-lg max-w-3xl mx-auto leading-relaxed mb-6">
+                  Este simulador permite que você pratique com questões de anos anteriores do ENEM, receba feedback
+                  imediato sobre suas respostas e acompanhe seu desempenho em tempo real.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mt-8">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Target className="h-6 w-6 text-primary" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">Pratique</h4>
+                    <p className="text-sm text-muted-foreground text-center">Questões reais de anos anteriores</p>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
+                      <TrendingUp className="h-6 w-6 text-success" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">Aprenda</h4>
+                    <p className="text-sm text-muted-foreground text-center">Feedback imediato e explicações</p>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center">
+                      <GraduationCap className="h-6 w-6 text-warning" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">Evolua</h4>
+                    <p className="text-sm text-muted-foreground text-center">Acompanhe seu progresso</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
         </div>
       </main>
+
       <Footer />
+      
+      {/* LanguageModal removido - a seleção de língua agora é feita na página de questões */}
     </div>
   )
 }

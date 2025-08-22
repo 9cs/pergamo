@@ -1,14 +1,27 @@
 import type React from "react"
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from "@vercel/analytics/next"
 import "@/app/globals.css"
-import { Inter } from "next/font/google"
+import { Inter, Poppins } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Suspense } from "react"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+})
 
 export const metadata = {
   title: "Questões ENEM",
-  description: "Site para estudantes responderem questões do vestibular do ENEM"
+  description: "Site para estudantes responderem questões do vestibular do ENEM",
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
@@ -17,12 +30,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${inter.className} bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
-        <Analytics />
+    <html lang="pt-BR" suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
+      <body
+        className={`${inter.className} bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 antialiased`}
+      >
+        <Suspense fallback={null}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            {children}
+          </ThemeProvider>
+          <Analytics />
+        </Suspense>
       </body>
     </html>
   )

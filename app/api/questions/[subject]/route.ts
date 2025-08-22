@@ -74,7 +74,7 @@ export async function GET(
         return q.area === subject
       }
 
-      // Filtro especial para inglês
+      // Filtro especial para inglês - deve incluir apenas questões de inglês
       if (subject === "ingles") {
         const dir = (q.dirName || "").toLowerCase()
         return (
@@ -84,7 +84,7 @@ export async function GET(
         )
       }
 
-      // Filtro especial para espanhol
+      // Filtro especial para espanhol - deve incluir apenas questões de espanhol
       if (subject === "espanhol") {
         const dir = (q.dirName || "").toLowerCase()
         return (

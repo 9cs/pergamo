@@ -6,97 +6,85 @@
 
 @layer base {
   :root {
-    /* Educational Color Palette */
-    --background: 220 26% 14%;
-    --foreground: 210 40% 98%;
-    
-    --card: 220 21% 18%;
-    --card-foreground: 210 40% 98%;
-    
+    /* Sistema de cores moderno e acessível */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 7%;
+    --card-foreground: 0 0% 98%;
+
     --primary: 217 91% 60%;
-    --primary-foreground: 220 26% 14%;
-    
-    --secondary: 220 14% 25%;
-    --secondary-foreground: 210 40% 98%;
-    
-    --muted: 220 14% 22%;
-    --muted-foreground: 215 20% 65%;
-    
+    --primary-foreground: 240 10% 3.9%;
+
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 5% 26%;
+    --muted-foreground: 240 5% 64%;
+
     --accent: 142 76% 36%;
-    --accent-foreground: 210 40% 98%;
-    
+    --accent-foreground: 0 0% 98%;
+
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    
+    --destructive-foreground: 0 0% 98%;
+
     --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
-    
+    --success-foreground: 0 0% 98%;
+
     --warning: 38 92% 50%;
-    --warning-foreground: 220 26% 14%;
-    
-    --border: 220 13% 28%;
-    --input: 220 13% 28%;
+    --warning-foreground: 240 10% 3.9%;
+
+    --border: 240 6% 20%;
+    --input: 240 6% 20%;
     --ring: 217 91% 60%;
-    
-    /* Subject Colors */
-    --humanities: 269 84% 68%;
-    --languages: 38 92% 50%;
-    --nature: 142 76% 36%;
-    --mathematics: 24 90% 53%;
-    
-    /* Gradients */
+
+    /* Cores das matérias mais vibrantes e acessíveis */
+    --humanities: 280 100% 70%;
+    --languages: 45 93% 58%;
+    --nature: 142 71% 45%;
+    --mathematics: 14 91% 60%;
+
+    /* Gradientes modernos */
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(142 76% 36%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(220 21% 18%) 0%, hsl(220 14% 25%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 70% 45%) 100%);
-    --gradient-error: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(0 70% 50%) 100%);
-    
-    --radius: 0.75rem;
+    --gradient-card: linear-gradient(135deg, hsl(240 10% 7%) 0%, hsl(240 4% 16%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(280 100% 70%) 50%, hsl(142 71% 45%) 100%);
+
+    --radius: 1rem;
+
+    /* Adicionando variáveis de fonte */
+    --font-heading: var(--font-poppins);
+    --font-body: var(--font-inter);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: hsl(226 28.7% 20.4%);
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 240 10% 3.9%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 26%;
+    --muted-foreground: 240 5% 64%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 20%;
+    --input: 240 6% 20%;
+    --ring: 217 91% 60%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -115,30 +103,84 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Tipografia melhorada */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+
+  p,
+  span,
+  div {
+    font-family: var(--font-body);
+    line-height: 1.6;
   }
 }
 
-/* Subject button / card hover color using CSS variable set inline on Card */
-.subject-btn {
-  transition: background-color 200ms ease, transform 200ms ease, color 200ms ease;
-  /* estado dormente: um pouco mais claro que o card */
-  background-color: hsl(var(--card) / 0.9);
-}
-/* Quando o card estiver em hover/focus, pintar o botão com a cor da matéria */
-.group:hover .subject-btn,
-.group:focus-within .subject-btn {
-  background-color: var(--hover-color) !important;
-  color: white !important;
-  transform: translateY(-4px);
-}
-/* Quando o próprio botão for hover ou focus, manter a cor da matéria */
-.subject-btn:hover,
-.subject-btn:focus {
-  background-color: var(--hover-color) !important;
-  color: white !important;
-  transform: translateY(-4px);
-}
-.group:hover,
-.group:focus-within {
-  transform: translateY(-4px);
+/* Animações e interações melhoradas */
+@layer components {
+  .card-hover {
+    @apply transition-all duration-500 ease-out;
+    @apply hover:scale-[1.03];
+    @apply hover:shadow-2xl;
+    @apply hover:-translate-y-1;
+  }
+
+  .subject-btn {
+    @apply transition-all duration-300 ease-out !important;
+    @apply bg-card/50 backdrop-blur-sm;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+    transform: scale(1);
+    transform-origin: center !important;
+    transition: all 500ms ease-out !important;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  
+  .subject-btn:hover {
+    @apply bg-primary text-primary-foreground shadow-lg;
+    transform: scale(1.05) !important;
+  }
+
+  .area-card {
+    @apply relative overflow-hidden;
+    @apply bg-gradient-to-br from-card to-card/80;
+    @apply border border-border/50;
+    @apply backdrop-blur-sm;
+  }
+
+  .area-card::before {
+    content: "";
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(135deg, var(--hover-color, hsl(var(--primary))) 0%, transparent 100%);
+  }
+
+  .area-card:hover::before {
+    @apply opacity-10;
+  }
+
+  .hero-gradient {
+    background: var(--gradient-hero);
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 }
