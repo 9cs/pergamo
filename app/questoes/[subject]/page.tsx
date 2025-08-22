@@ -423,7 +423,7 @@ export default function QuestionsPage() {
           <CardFooter>
             <Button
               onClick={() => router.push("/")}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para o início
@@ -492,7 +492,11 @@ export default function QuestionsPage() {
                   </motion.div>
                   <CardTitle className="text-3xl font-bold text-white mb-2">Resultado Final</CardTitle>
                   <p className="text-slate-300">Seu desempenho em</p>
-                  <Badge className="mt-3 bg-white/20 text-white border-0 px-4 py-1">{getSubjectName(subject)}</Badge>
+                  <div className="flex justify-center mt-3">
+                    <Badge className="bg-white/20 text-white border-0 px-4 py-1 inline-block">
+                      {getSubjectName(subject)}
+                    </Badge>
+                  </div>
                 </CardHeader>
 
                 <CardContent className="space-y-8 relative">
@@ -531,6 +535,24 @@ export default function QuestionsPage() {
                     <div className="text-center p-4 bg-red-500/10 rounded-xl">
                       <div className="text-3xl font-bold text-red-400 mb-1">{incorrectAnswers}</div>
                       <div className="text-sm text-slate-300">Erros</div>
+                    </div>
+                  </div>
+
+                  {/* Tempo total e tempo médio por questão */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6">
+                    <div className="text-center p-4 bg-blue-500/10 rounded-xl">
+                      <div className="text-3xl font-bold text-blue-400 mb-1">
+                        {Math.floor(totalTime / 60)}:{(totalTime % 60).toString().padStart(2, "0")}
+                      </div>
+                      <div className="text-sm text-slate-300">Tempo total</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-500/10 rounded-xl">
+                      <div className="text-3xl font-bold text-purple-400 mb-1">
+                        {totalQuestions > 0 
+                          ? `${Math.floor((totalTime / totalQuestions) / 60)}:${Math.floor((totalTime / totalQuestions) % 60).toString().padStart(2, "0")}` 
+                          : "0:00"}
+                      </div>
+                      <div className="text-sm text-slate-300">Tempo médio por questão</div>
                     </div>
                   </div>
                 </CardContent>

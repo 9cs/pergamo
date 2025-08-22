@@ -39,12 +39,12 @@ export default function LanguageModal({ isOpen, onClose, onLanguageSelect }: Lan
 
         <div className="space-y-3">
           <Button
-            className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 border border-blue-500/30 text-foreground"
+            className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 !border-4 !border-blue-500 text-foreground"
             onClick={() => {
               onLanguageSelect("ingles");
               onClose();
             }}
-          >
+          variant="bordered">
             <Languages className="h-5 w-5 text-blue-400" />
             <div className="text-left">
               <div className="font-semibold">Inglês</div>
@@ -53,12 +53,12 @@ export default function LanguageModal({ isOpen, onClose, onLanguageSelect }: Lan
           </Button>
 
           <Button
-            className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-orange-600/20 to-red-600/20 hover:from-orange-600/30 hover:to-red-600/30 border border-orange-500/30 text-foreground"
+            className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-orange-600/20 to-red-600/20 hover:from-orange-600/30 hover:to-red-600/30 !border-4 !border-orange-500 text-foreground"
             onClick={() => {
               onLanguageSelect("espanhol");
               onClose();
             }}
-          >
+          variant="bordered">
             <Flag className="h-5 w-5 text-orange-400" />
             <div className="text-left">
               <div className="font-semibold">Espanhol</div>

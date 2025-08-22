@@ -265,7 +265,7 @@ export default function Home() {
           </section>
 
           <section>
-            <Card className="area-card border-border/50 bg-card">
+            <Card className="area-card border-border/50 bg-gradient-to-br from-card to-card/80">
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-xl sm:text-2xl lg:text-3xl text-foreground">Como Funciona?</CardTitle>
               </CardHeader>

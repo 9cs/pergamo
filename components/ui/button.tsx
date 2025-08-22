@@ -11,12 +11,19 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-neutral-800 text-neutral-50 hover:bg-neutral-700 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-neutral-300",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
           "border border-input bg-background hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost:
+          "hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
         link: "text-primary underline-offset-4 hover:underline",
+
+        // 👉 nova variant com borda grossa
+        bordered:
+          "border-4 border-blue-500 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 text-foreground",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -29,7 +36,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
+  }
 )
 
 export interface ButtonProps
