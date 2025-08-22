@@ -23,10 +23,12 @@ import {
   Target,
   TrendingUp,
   X,
+  Brush,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Footer from "@/components/Footer"
 import LanguageModal from "@/components/LanguageModal"
+import LanguageSelectionModal from "@/components/LanguageSelectionModal"
 
 const areas = [
   {
@@ -42,8 +44,8 @@ const areas = [
     title: "Linguagens",
     icon: <BookOpen className="h-6 w-6" />,
     color: "languages",
-    subjects: ["portugues", "literatura", "ingles", "espanhol", "educacao-fisica"],
-    description: "Português, Literatura, Inglês e Espanhol",
+    subjects: ["portugues", "literatura", "lingua-estrangeira", "artes", "educacao-fisica"],
+    description: "Português, Literatura, Língua Estrangeira e Artes",
   },
   {
     key: "ciencias-natureza",
@@ -66,8 +68,8 @@ const areas = [
 const subjects = [
   { key: "portugues", title: "Português", icon: <FileText className="h-5 w-5" />, color: "languages", count: 245 },
   { key: "literatura", title: "Literatura", icon: <BookOpen className="h-5 w-5" />, color: "languages", count: 156 },
-  { key: "ingles", title: "Inglês", icon: <Languages className="h-5 w-5" />, color: "languages", count: 89 },
-  { key: "espanhol", title: "Espanhol", icon: <Flag className="h-5 w-5" />, color: "languages", count: 76 },
+  { key: "lingua-estrangeira", title: "Língua Estrangeira", icon: <Languages className="h-5 w-5" />, color: "languages", count: 165 },
+  { key: "artes", title: "Artes", icon: <Brush className="h-5 w-5" />, color: "languages", count: 89 },
   { key: "historia", title: "História", icon: <Clock className="h-5 w-5" />, color: "humanities", count: 198 },
   { key: "geografia", title: "Geografia", icon: <Globe className="h-5 w-5" />, color: "humanities", count: 167 },
   { key: "filosofia", title: "Filosofia", icon: <User className="h-5 w-5" />, color: "humanities", count: 134 },
@@ -86,11 +88,16 @@ const subjects = [
 
 export default function Home() {
   const [showLanguageModal, setShowLanguageModal] = useState(false)
+  const [showLanguageSelectionModal, setShowLanguageSelectionModal] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
 
   const handleStartStudies = (areaKey: string) => {
     // Para todas as áreas, navegar normalmente
-    window.location.href = `/questoes/${areaKey}`
+    if (areaKey === "lingua-estrangeira") {
+      setShowLanguageSelectionModal(true)
+    } else {
+      window.location.href = `/questoes/${areaKey}`
+    }
   }
 
   const handleLanguageSelect = (language: string) => {
@@ -109,7 +116,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center text-center space-y-6">
             <div className="flex items-center gap-3 mb-2">
               <GraduationCap className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
-              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white">Questões ENEM</h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white">enemfodao</h1>
             </div>
             <p className="text-lg sm:text-xl lg:text-2xl text-white/90 max-w-2xl leading-relaxed">
               Prepare-se para o ENEM com questões de anos anteriores
@@ -252,12 +259,23 @@ export default function Home() {
                       </h3>
                     </div>
 
-                    <Link href={`/questoes/${subject.key}`} className="w-full">
-                      <Button className="subject-btn w-full" size="sm">
+                    {subject.key === "lingua-estrangeira" ? (
+                      <Button 
+                        className="subject-btn w-full" 
+                        size="sm" 
+                        onClick={() => handleStartStudies(subject.key)}
+                      >
                         Praticar
                         <ChevronRight className="h-4 w-4 ml-2" />
                       </Button>
-                    </Link>
+                    ) : (
+                      <Link href={`/questoes/${subject.key}`} className="w-full">
+                        <Button className="subject-btn w-full" size="sm">
+                          Praticar
+                          <ChevronRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </Link>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -309,6 +327,10 @@ export default function Home() {
       <Footer />
       
       {/* LanguageModal removido - a seleção de língua agora é feita na página de questões */}
+      <LanguageSelectionModal 
+        isOpen={showLanguageSelectionModal} 
+        onClose={() => setShowLanguageSelectionModal(false)} 
+      />
     </div>
   )
 }
