@@ -3,28 +3,39 @@
 import { X, Languages, Flag, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface LanguageModalProps {
   isOpen: boolean
   onClose: () => void
-  onLanguageSelect: (language: string) => void
+  isLinguagensArea?: boolean // true para área Linguagens, false para matéria Língua Estrangeira
 }
 
-export default function LanguageModal({ isOpen, onClose, onLanguageSelect }: LanguageModalProps) {
-  if (!isOpen) return null
-
+export default function LanguageModal({ isOpen, onClose, isLinguagensArea = false }: LanguageModalProps) {
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop com blur */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Backdrop com blur animado */}
+          <motion.div
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="absolute inset-0 bg-black/60"
+            onClick={onClose}
+          />
 
-      {/* Modal content */}
-      <div className="relative bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          {/* Modal content animado */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="relative bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl p-6 w-full max-w-md shadow-2xl"
+          >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-foreground">Escolha o idioma</h3>
+          <h3 className="text-xl font-bold text-foreground">Escolha a língua estrangeira</h3>
           <Button
             variant="ghost"
             size="icon"
@@ -35,52 +46,66 @@ export default function LanguageModal({ isOpen, onClose, onLanguageSelect }: Lan
           </Button>
         </div>
         
-        <p className="text-muted-foreground mb-6 text-center">Selecione qual idioma você gostaria de praticar:</p>
+        <p className="text-muted-foreground mb-6 text-center">Selecione qual língua você gostaria de praticar:</p>
 
         <div className="space-y-3">
-          <Button
-            className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 !border-4 !border-blue-500 text-foreground"
-            onClick={() => {
-              onLanguageSelect("ingles");
-              onClose();
-            }}
-          variant="bordered">
-            <Languages className="h-5 w-5 text-blue-400" />
-            <div className="text-left">
-              <div className="font-semibold">Inglês</div>
-              <div className="text-sm text-muted-foreground">English questions</div>
-            </div>
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
+          >
+            <Link href={isLinguagensArea ? "/questoes/linguagens?lang=ingles" : "/questoes/ingles"} className="block">
+              <Button
+                className="w-full justify-start gap-3 h-14 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-foreground transition-all duration-200 hover:scale-[1.02]"
+                onClick={onClose}
+              >
+                <Languages className="h-5 w-5 text-blue-400" />
+                <div className="text-left">
+                  <div className="font-semibold">Inglês</div>
+                  <div className="text-sm text-muted-foreground">English questions</div>
+                </div>
+              </Button>
+            </Link>
+          </motion.div>
 
-          <Button
-            className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-orange-600/20 to-red-600/20 hover:from-orange-600/30 hover:to-red-600/30 !border-4 !border-orange-500 text-foreground"
-            onClick={() => {
-              onLanguageSelect("espanhol");
-              onClose();
-            }}
-          variant="bordered">
-            <Flag className="h-5 w-5 text-orange-400" />
-            <div className="text-left">
-              <div className="font-semibold">Espanhol</div>
-              <div className="text-sm text-muted-foreground">Preguntas en español</div>
-            </div>
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.3, ease: "easeOut" }}
+          >
+            <Link href={isLinguagensArea ? "/questoes/linguagens?lang=espanhol" : "/questoes/espanhol"} className="block">
+              <Button
+                className="w-full justify-start gap-3 h-14 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/30 text-foreground transition-all duration-200 hover:scale-[1.02]"
+                onClick={onClose}
+              >
+                <Flag className="h-5 w-5 text-orange-400" />
+                <div className="text-left">
+                  <div className="font-semibold">Espanhol</div>
+                  <div className="text-sm text-muted-foreground">Preguntas en español</div>
+                </div>
+              </Button>
+            </Link>
+          </motion.div>
 
-          <div className="pt-2 border-t border-border/50">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.3, ease: "easeOut" }}
+            className="pt-2 border-t border-border/50"
+          >
             <Button
               variant="outline"
-              className="w-full justify-start gap-3 h-12 border-border/50 hover:bg-muted/50 bg-transparent"
-              onClick={() => {
-                onLanguageSelect("all");
-                onClose();
-              }}
+              className="w-full justify-start gap-3 h-12 border-border/50 hover:bg-muted/50 bg-transparent transition-all duration-200 hover:scale-[1.02]"
+              onClick={onClose}
             >
               <BookOpen className="h-5 w-5 text-muted-foreground" />
-              <span>Todas as matérias de Linguagens</span>
+              <span>Voltar para o início</span>
             </Button>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   )
 }

@@ -28,7 +28,6 @@ import {
 import { cn } from "@/lib/utils"
 import Footer from "@/components/Footer"
 import LanguageModal from "@/components/LanguageModal"
-import LanguageSelectionModal from "@/components/LanguageSelectionModal"
 
 const areas = [
   {
@@ -88,20 +87,17 @@ const subjects = [
 
 export default function Home() {
   const [showLanguageModal, setShowLanguageModal] = useState(false)
-  const [showLanguageSelectionModal, setShowLanguageSelectionModal] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
+  const [isLinguagensArea, setIsLinguagensArea] = useState(false)
 
   const handleStartStudies = (areaKey: string) => {
-    // Para todas as áreas, navegar normalmente
-    if (areaKey === "lingua-estrangeira") {
-      setShowLanguageSelectionModal(true)
+    // Para linguagens e língua estrangeira, mostrar seletor de língua
+    if (areaKey === "linguagens" || areaKey === "lingua-estrangeira") {
+      setIsLinguagensArea(areaKey === "linguagens")
+      setShowLanguageModal(true)
     } else {
       window.location.href = `/questoes/${areaKey}`
     }
-  }
-
-  const handleLanguageSelect = (language: string) => {
-    setSelectedLanguage(language)
   }
 
   const resetLanguageFilter = () => {
@@ -116,7 +112,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center text-center space-y-6">
             <div className="flex items-center gap-3 mb-2">
               <GraduationCap className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
-              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white">enemfodao</h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white">Pergamo</h1>
             </div>
             <p className="text-lg sm:text-xl lg:text-2xl text-white/90 max-w-2xl leading-relaxed">
               Prepare-se para o ENEM com questões de anos anteriores
@@ -326,10 +322,10 @@ export default function Home() {
 
       <Footer />
       
-      {/* LanguageModal removido - a seleção de língua agora é feita na página de questões */}
-      <LanguageSelectionModal 
-        isOpen={showLanguageSelectionModal} 
-        onClose={() => setShowLanguageSelectionModal(false)} 
+      <LanguageModal 
+        isOpen={showLanguageModal} 
+        onClose={() => setShowLanguageModal(false)}
+        isLinguagensArea={isLinguagensArea}
       />
     </div>
   )

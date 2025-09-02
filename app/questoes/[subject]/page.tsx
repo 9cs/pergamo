@@ -19,8 +19,6 @@ import {
   TrendingUp,
   RotateCcw,
   ArrowLeft,
-  Languages,
-  Flag,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
@@ -119,10 +117,11 @@ export default function QuestionsPage() {
   const router = useRouter()
   const params = useParams()
   const subject = params?.subject as string
-
-  // Estado para controlar a seleção de língua para o subject "linguagens"
+  
+  // Capturar parâmetro da língua da URL
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false)
+  const hasLoadedRef = useRef(false)
+
 
   // estados principais (sempre no topo)
   const [questions, setQuestions] = useState<Question[]>([])
@@ -142,18 +141,14 @@ export default function QuestionsPage() {
   // ref para manter id do timer total (iniciado quando as questões são carregadas)
   const totalTimerId = useRef<number | null>(null)
 
-  // Função para lidar com a seleção de língua
-  const handleLanguageSelect = (language: string) => {
-    setSelectedLanguage(language)
-    setShowLanguageSelector(false)
-  }
 
-  // Verificar se é o subject de linguagens e mostrar o seletor de língua
+
+  // Capturar parâmetro da língua da URL
   useEffect(() => {
-    if (subject === "linguagens" && !selectedLanguage) {
-      setShowLanguageSelector(true)
-    }
-  }, [subject, selectedLanguage])
+    const urlParams = new URLSearchParams(window.location.search)
+    const lang = urlParams.get('lang')
+    setSelectedLanguage(lang)
+  }, [])
 
   // per-question timer resets on question change
   useEffect(() => {
@@ -187,6 +182,7 @@ export default function QuestionsPage() {
       linguagens: "Linguagens",
       matematica: "Matemática",
       filosofia: "Filosofia",
+      sociologia: "Sociologia",
       historia: "História",
       geografia: "Geografia",
       biologia: "Biologia",
@@ -202,49 +198,69 @@ export default function QuestionsPage() {
 
   // Carregar questões
   useEffect(() => {
-    // Se for linguagens e não selecionou língua ainda, mostrar seletor e não carregar questões
-    if (subject === "linguagens" && !selectedLanguage) {
-      setShowLanguageSelector(true)
-      setLoading(false)
-      return
+    // Para linguagens, só carregar quando tiver a língua selecionada
+    if (subject === "linguagens") {
+      if (selectedLanguage && !hasLoadedRef.current) {
+        loadQuestions(subject)
+        hasLoadedRef.current = true
+      }
+    } else {
+      // Para outros subjects, carregar imediatamente se não foi carregado
+      if (!hasLoadedRef.current) {
+        loadQuestions(subject)
+        hasLoadedRef.current = true
+      }
     }
-
-    // Se for linguagens e já tem língua selecionada, carregar apenas as questões dessa língua
-    if (subject === "linguagens" && selectedLanguage) {
-      loadQuestions(selectedLanguage)
-      return
-    }
-
-    // Para outros subjects, carregar normalmente
-    loadQuestions(subject)
   }, [subject, selectedLanguage])
 
-  const loadQuestions = async (languageSubject: string) => {
+  const loadQuestions = async (subjectToLoad: string) => {
     try {
       setLoading(true)
-      console.log("Carregando questões para língua:", languageSubject)
+      console.log("Carregando questões para subject:", subjectToLoad)
       
-      // Carregar questões da língua selecionada
-      const languageResponse = await fetch(`/api/questions/${languageSubject}`)
-      if (!languageResponse.ok) throw new Error(`Erro ao carregar questões de ${languageSubject}: ${languageResponse.status}`)
-      const languageData = await languageResponse.json()
-      console.log("Questões de", languageSubject, ":", languageData.length, "questões")
+      let allData: Question[] = []
       
-      // Carregar questões de português
-      const portuguesResponse = await fetch(`/api/questions/portugues`)
-      if (!portuguesResponse.ok) throw new Error(`Erro ao carregar questões de português: ${portuguesResponse.status}`)
-      const portuguesData = await portuguesResponse.json()
-      console.log("Questões de português:", portuguesData.length, "questões")
+      // Se for linguagens e tem língua selecionada, carregar português + literatura + artes + língua estrangeira
+      if (subjectToLoad === "linguagens" && selectedLanguage) {
+        // Carregar questões da língua estrangeira selecionada
+        const languageResponse = await fetch(`/api/questions/${selectedLanguage}`)
+        if (!languageResponse.ok) throw new Error(`Erro ao carregar questões de ${selectedLanguage}: ${languageResponse.status}`)
+        const languageData = await languageResponse.json()
+        console.log("Questões de", selectedLanguage, ":", languageData.length, "questões")
+        
+        // Carregar TODAS as questões de português
+        const portuguesResponse = await fetch(`/api/questions/portugues`)
+        if (!portuguesResponse.ok) throw new Error(`Erro ao carregar questões de português: ${portuguesResponse.status}`)
+        const portuguesData = await portuguesResponse.json()
+        console.log("Questões de português:", portuguesData.length, "questões")
+        
+        // Carregar TODAS as questões de literatura
+        const literaturaResponse = await fetch(`/api/questions/literatura`)
+        if (!literaturaResponse.ok) throw new Error(`Erro ao carregar questões de literatura: ${literaturaResponse.status}`)
+        const literaturaData = await literaturaResponse.json()
+        console.log("Questões de literatura:", literaturaData.length, "questões")
+        
+        // Carregar TODAS as questões de artes
+        const artesResponse = await fetch(`/api/questions/artes`)
+        if (!artesResponse.ok) throw new Error(`Erro ao carregar questões de artes: ${artesResponse.status}`)
+        const artesData = await artesResponse.json()
+        console.log("Questões de artes:", artesData.length, "questões")
+        
+        // Criar distribuição melhorada: duplicar questões de língua estrangeira para aparecerem mais
+        const languageDataDuplicated = [...languageData, ...languageData] // Duplicar para aparecer 2x mais
+        
+        // Combinar TODAS as questões de linguagens
+        allData = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
+        setSubjectName(`Linguagens (${getSubjectName(selectedLanguage)})`)
+      } else {
+        // Para outros subjects, carregar apenas as questões do subject específico
+        const response = await fetch(`/api/questions/${subjectToLoad}`)
+        if (!response.ok) throw new Error(`Erro ao carregar questões de ${subjectToLoad}: ${response.status}`)
+        allData = await response.json()
+        setSubjectName(getSubjectName(subjectToLoad))
+      }
       
-      // Carregar questões de literatura
-      const literaturaResponse = await fetch(`/api/questions/literatura`)
-      if (!literaturaResponse.ok) throw new Error(`Erro ao carregar questões de literatura: ${literaturaResponse.status}`)
-      const literaturaData = await literaturaResponse.json()
-      console.log("Questões de literatura:", literaturaData.length, "questões")
-      
-      // Combinar todas as questões
-      const allData = [...languageData, ...portuguesData, ...literaturaData]
-      console.log("Total de questões combinadas:", allData.length, "questões")
+      console.log("Total de questões carregadas:", allData.length, "questões")
       
       // Embaralha a ordem das questões por sessão (Fisher-Yates)
       const shuffled = [...allData]
@@ -256,7 +272,7 @@ export default function QuestionsPage() {
       }
       console.log("Questões embaralhadas:", shuffled.length, "questões")
       setQuestions(shuffled)
-      setSubjectName(`${getSubjectName(languageSubject)} (Linguagens)`)
+      
       // Começar pela primeira posição do array embaralhado
       setCurrentQuestionIndex(shuffled.length > 0 ? 0 : null)
       // iniciar timer total a partir do momento em que as questões estiverem prontas
@@ -335,58 +351,10 @@ export default function QuestionsPage() {
     setAnsweredQuestions(new Set())
   }
 
-  // Seletor de língua para Linguagens
-  if (showLanguageSelector && subject === "linguagens" && !selectedLanguage) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-        <div className="relative bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-          <div className="text-center mb-6">
-            <h3 className="text-xl font-bold text-foreground">Escolha a língua estrangeira</h3>
-            <p className="text-muted-foreground mt-2">Selecione qual língua você gostaria de praticar:</p>
-          </div>
-          
-          <div className="space-y-3">
-            <Button
-              className="w-full justify-start gap-3 h-14 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-foreground"
-              onClick={() => handleLanguageSelect("ingles")}
-            >
-              <Languages className="h-5 w-5 text-blue-400" />
-              <div className="text-left">
-                <div className="font-semibold">Inglês</div>
-                <div className="text-sm text-muted-foreground">English questions</div>
-              </div>
-            </Button>
 
-            <Button
-              className="w-full justify-start gap-3 h-14 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/30 text-foreground"
-              onClick={() => handleLanguageSelect("espanhol")}
-            >
-              <Flag className="h-5 w-5 text-orange-400" />
-              <div className="text-left">
-                <div className="font-semibold">Espanhol</div>
-                <div className="text-sm text-muted-foreground">Preguntas en español</div>
-              </div>
-            </Button>
-
-            <div className="pt-2 border-t border-border/50">
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-3 h-12 border-border/50 hover:bg-muted/50 bg-transparent"
-                onClick={() => router.push("/")}
-              >
-                <BookOpen className="h-5 w-5 text-muted-foreground" />
-                <span>Voltar para o início</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   // Loading
-  if (loading) {
+  if (loading || (subject === "linguagens" && !selectedLanguage)) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">
         <div className="text-center space-y-6">
@@ -407,7 +375,7 @@ export default function QuestionsPage() {
   }
 
   // Nenhuma questão
-  if ((!questions.length && subject !== "linguagens") || (questions.length === 0 && selectedLanguage) || currentQuestionIndex === null || !currentQuestion) {
+  if (!questions.length || currentQuestionIndex === null || !currentQuestion) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full text-center shadow-2xl border-0 bg-card/50 backdrop-blur-sm">
@@ -468,7 +436,7 @@ export default function QuestionsPage() {
                   <Home className="h-5 w-5" />
                 </Button>
                 <div>
-                  <h1 className="text-xl font-bold text-white">Questões ENEM</h1>
+                  <h1 className="text-xl font-bold text-white">Pergamo</h1>
                   <p className="text-sm text-slate-300 hidden sm:block">Simulado finalizado</p>
                 </div>
               </div>
@@ -594,54 +562,6 @@ export default function QuestionsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Seletor de língua para Linguagens */}
-      {showLanguageSelector && subject === "linguagens" && !selectedLanguage && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-          <div className="relative bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-foreground">Escolha a língua estrangeira</h3>
-              <p className="text-muted-foreground mt-2">Selecione qual língua você gostaria de praticar:</p>
-            </div>
-            
-            <div className="space-y-3">
-              <Button
-                className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 border border-blue-500/30 text-foreground"
-                onClick={() => handleLanguageSelect("ingles")}
-              >
-                <Languages className="h-5 w-5 text-blue-400" />
-                <div className="text-left">
-                  <div className="font-semibold">Inglês</div>
-                  <div className="text-sm text-muted-foreground">English questions</div>
-                </div>
-              </Button>
-
-              <Button
-                className="w-full justify-start gap-3 h-14 bg-gradient-to-r from-orange-600/20 to-red-600/20 hover:from-orange-600/30 hover:to-red-600/30 border border-orange-500/30 text-foreground"
-                onClick={() => handleLanguageSelect("espanhol")}
-              >
-                <Flag className="h-5 w-5 text-orange-400" />
-                <div className="text-left">
-                  <div className="font-semibold">Espanhol</div>
-                  <div className="text-sm text-muted-foreground">Preguntas en español</div>
-                </div>
-              </Button>
-
-              <div className="pt-2 border-t border-border/50">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-12 border-border/50 hover:bg-muted/50 bg-transparent"
-                  onClick={() => router.push("/")}
-                >
-                  <BookOpen className="h-5 w-5 text-muted-foreground" />
-                  <span>Voltar para o início</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <header className="sticky top-0 z-50 bg-black/20 backdrop-blur-xl border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -655,10 +575,10 @@ export default function QuestionsPage() {
                 <Home className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-xl font-bold text-white">Questões ENEM</h1>
+                <h1 className="text-xl font-bold text-white">Pergamo</h1>
                 <p className="text-sm text-slate-300 hidden sm:block">
                   {subject === "linguagens" && selectedLanguage 
-                    ? `${getSubjectName(selectedLanguage)} (Linguagens)` 
+                    ? `Linguagens (${getSubjectName(selectedLanguage)})` 
                     : getSubjectName(subject)}
                 </p>
               </div>
@@ -670,8 +590,7 @@ export default function QuestionsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setSelectedLanguage(null)
-                    setShowLanguageSelector(true)
+                    router.push('/')
                   }}
                   className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm hidden sm:flex"
                 >

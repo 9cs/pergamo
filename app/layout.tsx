@@ -19,9 +19,8 @@ const poppins = Poppins({
 })
 
 export const metadata = {
-  title: "Questões ENEM",
+  title: "Pergamo",
   description: "Site para estudantes responderem questões do vestibular do ENEM",
-    generator: 'v0.app'
 }
 
 export default function RootLayout({
