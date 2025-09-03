@@ -140,6 +140,8 @@ export default function QuestionsPage() {
   const [questionTime, setQuestionTime] = useState(0)
   // ref para manter id do timer total (iniciado quando as questões são carregadas)
   const totalTimerId = useRef<number | null>(null)
+  // Cache de questões no lado do cliente
+  const questionsCache = useRef<Map<string, Question[]>>(new Map())
 
 
 
@@ -216,35 +218,57 @@ export default function QuestionsPage() {
   const loadQuestions = async (subjectToLoad: string) => {
     try {
       setLoading(true)
-      console.log("Carregando questões para subject:", subjectToLoad)
+      // Log apenas em desenvolvimento
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Carregando questões para subject:", subjectToLoad)
+      }
+      
+      // Verificar cache primeiro
+      const cacheKey = subjectToLoad === "linguagens" && selectedLanguage 
+        ? `linguagens-${selectedLanguage}` 
+        : subjectToLoad
+      
+      if (questionsCache.current.has(cacheKey)) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Usando cache para:", cacheKey)
+        }
+        const cachedData = questionsCache.current.get(cacheKey)!
+        setQuestions(cachedData)
+        setCurrentQuestionIndex(cachedData.length > 0 ? 0 : null)
+        setLoading(false)
+        return
+      }
       
       let allData: Question[] = []
       
-      // Se for linguagens e tem língua selecionada, carregar português + literatura + artes + língua estrangeira
+      // Otimização máxima: Carregamento em lote com uma única requisição
       if (subjectToLoad === "linguagens" && selectedLanguage) {
-        // Carregar questões da língua estrangeira selecionada
-        const languageResponse = await fetch(`/api/questions/${selectedLanguage}`)
-        if (!languageResponse.ok) throw new Error(`Erro ao carregar questões de ${selectedLanguage}: ${languageResponse.status}`)
-        const languageData = await languageResponse.json()
-        console.log("Questões de", selectedLanguage, ":", languageData.length, "questões")
+        // Carregar todas as matérias de linguagens em uma única requisição
+        const response = await fetch('/api/questions/batch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'max-age=3600',
+          },
+          body: JSON.stringify({
+            subjects: [selectedLanguage, 'portugues', 'literatura', 'artes']
+          })
+        })
         
-        // Carregar TODAS as questões de português
-        const portuguesResponse = await fetch(`/api/questions/portugues`)
-        if (!portuguesResponse.ok) throw new Error(`Erro ao carregar questões de português: ${portuguesResponse.status}`)
-        const portuguesData = await portuguesResponse.json()
-        console.log("Questões de português:", portuguesData.length, "questões")
+        if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
+        const batchData = await response.json()
         
-        // Carregar TODAS as questões de literatura
-        const literaturaResponse = await fetch(`/api/questions/literatura`)
-        if (!literaturaResponse.ok) throw new Error(`Erro ao carregar questões de literatura: ${literaturaResponse.status}`)
-        const literaturaData = await literaturaResponse.json()
-        console.log("Questões de literatura:", literaturaData.length, "questões")
+        const languageData = batchData[selectedLanguage] || []
+        const portuguesData = batchData.portugues || []
+        const literaturaData = batchData.literatura || []
+        const artesData = batchData.artes || []
         
-        // Carregar TODAS as questões de artes
-        const artesResponse = await fetch(`/api/questions/artes`)
-        if (!artesResponse.ok) throw new Error(`Erro ao carregar questões de artes: ${artesResponse.status}`)
-        const artesData = await artesResponse.json()
-        console.log("Questões de artes:", artesData.length, "questões")
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Questões de", selectedLanguage, ":", languageData.length, "questões")
+          console.log("Questões de português:", portuguesData.length, "questões")
+          console.log("Questões de literatura:", literaturaData.length, "questões")
+          console.log("Questões de artes:", artesData.length, "questões")
+        }
         
         // Criar distribuição melhorada: duplicar questões de língua estrangeira para aparecerem mais
         const languageDataDuplicated = [...languageData, ...languageData] // Duplicar para aparecer 2x mais
@@ -252,25 +276,89 @@ export default function QuestionsPage() {
         // Combinar TODAS as questões de linguagens
         allData = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
         setSubjectName(`Linguagens (${getSubjectName(selectedLanguage)})`)
+      } else if (subjectToLoad === "ciencias-humanas") {
+        // Carregar todas as matérias de ciências humanas em uma única requisição
+        const response = await fetch('/api/questions/batch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'max-age=3600',
+          },
+          body: JSON.stringify({
+            subjects: ['historia', 'geografia', 'filosofia', 'sociologia']
+          })
+        })
+        
+        if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
+        const batchData = await response.json()
+        
+        const historiaData = batchData.historia || []
+        const geografiaData = batchData.geografia || []
+        const filosofiaData = batchData.filosofia || []
+        const sociologiaData = batchData.sociologia || []
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Questões de história:", historiaData.length, "questões")
+          console.log("Questões de geografia:", geografiaData.length, "questões")
+          console.log("Questões de filosofia:", filosofiaData.length, "questões")
+          console.log("Questões de sociologia:", sociologiaData.length, "questões")
+        }
+        
+        // Combinar todas as questões de ciências humanas
+        allData = [...historiaData, ...geografiaData, ...filosofiaData, ...sociologiaData]
+        setSubjectName("Ciências Humanas")
+      } else if (subjectToLoad === "ciencias-natureza") {
+        // Carregar todas as matérias de ciências da natureza em uma única requisição
+        const response = await fetch('/api/questions/batch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'max-age=3600',
+          },
+          body: JSON.stringify({
+            subjects: ['biologia', 'quimica', 'fisica']
+          })
+        })
+        
+        if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
+        const batchData = await response.json()
+        
+        const biologiaData = batchData.biologia || []
+        const quimicaData = batchData.quimica || []
+        const fisicaData = batchData.fisica || []
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Questões de biologia:", biologiaData.length, "questões")
+          console.log("Questões de química:", quimicaData.length, "questões")
+          console.log("Questões de física:", fisicaData.length, "questões")
+        }
+        
+        // Combinar todas as questões de ciências da natureza
+        allData = [...biologiaData, ...quimicaData, ...fisicaData]
+        setSubjectName("Ciências da Natureza")
       } else {
         // Para outros subjects, carregar apenas as questões do subject específico
-        const response = await fetch(`/api/questions/${subjectToLoad}`)
+        const response = await fetch(`/api/questions/${subjectToLoad}`, {
+          cache: 'force-cache',
+          headers: {
+            'Cache-Control': 'max-age=3600',
+          }
+        })
         if (!response.ok) throw new Error(`Erro ao carregar questões de ${subjectToLoad}: ${response.status}`)
         allData = await response.json()
         setSubjectName(getSubjectName(subjectToLoad))
       }
       
-      console.log("Total de questões carregadas:", allData.length, "questões")
-      
-      // Embaralha a ordem das questões por sessão (Fisher-Yates)
-      const shuffled = [...allData]
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        const tmp = shuffled[i]
-        shuffled[i] = shuffled[j]
-        shuffled[j] = tmp
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Total de questões carregadas:", allData.length, "questões")
       }
-      console.log("Questões embaralhadas:", shuffled.length, "questões")
+      
+      // Otimização: Embaralhamento mais eficiente usando algoritmo moderno
+      const shuffled = allData.sort(() => Math.random() - 0.5)
+      
+      // Armazenar no cache
+      questionsCache.current.set(cacheKey, shuffled)
+      
       setQuestions(shuffled)
       
       // Começar pela primeira posição do array embaralhado
