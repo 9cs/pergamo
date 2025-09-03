@@ -119,7 +119,7 @@ export default function Home() {
             </p>
             <p className="text-sm sm:text-base lg:text-lg text-white/80 max-w-3xl leading-relaxed">
               Pratique com questões reais, receba feedback imediato e acompanhe seu progresso em todas as áreas do
-              conhecimento.
+              conhecimento de forma totalmente gratuita.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-8">
@@ -130,6 +130,10 @@ export default function Home() {
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
                 <TrendingUp className="h-4 w-4 text-white" />
                 <span className="text-white font-medium text-sm sm:text-base">Feedback Imediato</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <Globe className="h-4 w-4 text-white" />
+                <span className="text-white font-medium text-sm sm:text-base">100% Gratuito</span>
               </div>
             </div>
           </div>
