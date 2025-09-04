@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import ExplanationButton from "@/components/ExplanationButton"
 import {
   Home,
   ArrowRight,
@@ -142,6 +143,12 @@ export default function QuestionsPage() {
   const totalTimerId = useRef<number | null>(null)
   // Cache de questões no lado do cliente
   const questionsCache = useRef<Map<string, Question[]>>(new Map())
+  
+  // Estados para carregamento progressivo
+  const [totalQuestionsCount, setTotalQuestionsCount] = useState(0) // Total real de questões
+  const [loadedQuestionsCount, setLoadedQuestionsCount] = useState(0) // Quantas já foram carregadas
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [allQuestionsLoaded, setAllQuestionsLoaded] = useState(false)
 
 
 
@@ -215,12 +222,17 @@ export default function QuestionsPage() {
     }
   }, [subject, selectedLanguage])
 
-  const loadQuestions = async (subjectToLoad: string) => {
+  const loadQuestions = async (subjectToLoad: string, offset = 0, limit = 20) => {
     try {
-      setLoading(true)
+      if (offset === 0) {
+        setLoading(true)
+      } else {
+        setIsLoadingMore(true)
+      }
+      
       // Log apenas em desenvolvimento
       if (process.env.NODE_ENV === 'development') {
-        console.log("Carregando questões para subject:", subjectToLoad)
+        console.log("Carregando questões para subject:", subjectToLoad, "offset:", offset, "limit:", limit)
       }
       
       // Verificar cache primeiro
@@ -228,143 +240,187 @@ export default function QuestionsPage() {
         ? `linguagens-${selectedLanguage}` 
         : subjectToLoad
       
-      if (questionsCache.current.has(cacheKey)) {
+      if (questionsCache.current.has(cacheKey) && offset === 0) {
         if (process.env.NODE_ENV === 'development') {
           console.log("Usando cache para:", cacheKey)
         }
         const cachedData = questionsCache.current.get(cacheKey)!
         setQuestions(cachedData)
+        setTotalQuestionsCount(cachedData.length)
+        setLoadedQuestionsCount(cachedData.length)
+        setAllQuestionsLoaded(true)
         setCurrentQuestionIndex(cachedData.length > 0 ? 0 : null)
         setLoading(false)
         return
       }
       
       let allData: Question[] = []
+      let totalCount = 0
       
-      // Otimização máxima: Carregamento em lote com uma única requisição
+      // Carregamento progressivo com paginação
       if (subjectToLoad === "linguagens" && selectedLanguage) {
-        // Carregar todas as matérias de linguagens em uma única requisição
-        const response = await fetch('/api/questions/batch', {
+        const response = await fetch('/api/questions/batch-progressive', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'max-age=3600',
           },
           body: JSON.stringify({
-            subjects: [selectedLanguage, 'portugues', 'literatura', 'artes']
+            subjects: [selectedLanguage, 'portugues', 'literatura', 'artes'],
+            offset,
+            limit
           })
         })
         
         if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
         const batchData = await response.json()
         
-        const languageData = batchData[selectedLanguage] || []
-        const portuguesData = batchData.portugues || []
-        const literaturaData = batchData.literatura || []
-        const artesData = batchData.artes || []
+        const languageData = batchData[selectedLanguage]?.questions || []
+        const portuguesData = batchData.portugues?.questions || []
+        const literaturaData = batchData.literatura?.questions || []
+        const artesData = batchData.artes?.questions || []
+        
+        // Pegar o total de uma das matérias (todas devem ter o mesmo total)
+        totalCount = batchData[selectedLanguage]?.total || 0
         
         if (process.env.NODE_ENV === 'development') {
           console.log("Questões de", selectedLanguage, ":", languageData.length, "questões")
           console.log("Questões de português:", portuguesData.length, "questões")
           console.log("Questões de literatura:", literaturaData.length, "questões")
           console.log("Questões de artes:", artesData.length, "questões")
+          console.log("Total de questões:", totalCount)
         }
         
         // Criar distribuição melhorada: duplicar questões de língua estrangeira para aparecerem mais
         const languageDataDuplicated = [...languageData, ...languageData] // Duplicar para aparecer 2x mais
         
-        // Combinar TODAS as questões de linguagens
+        // Combinar questões carregadas
         allData = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
         setSubjectName(`Linguagens (${getSubjectName(selectedLanguage)})`)
       } else if (subjectToLoad === "ciencias-humanas") {
-        // Carregar todas as matérias de ciências humanas em uma única requisição
-        const response = await fetch('/api/questions/batch', {
+        const response = await fetch('/api/questions/batch-progressive', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'max-age=3600',
           },
           body: JSON.stringify({
-            subjects: ['historia', 'geografia', 'filosofia', 'sociologia']
+            subjects: ['historia', 'geografia', 'filosofia', 'sociologia'],
+            offset,
+            limit
           })
         })
         
         if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
         const batchData = await response.json()
         
-        const historiaData = batchData.historia || []
-        const geografiaData = batchData.geografia || []
-        const filosofiaData = batchData.filosofia || []
-        const sociologiaData = batchData.sociologia || []
+        const historiaData = batchData.historia?.questions || []
+        const geografiaData = batchData.geografia?.questions || []
+        const filosofiaData = batchData.filosofia?.questions || []
+        const sociologiaData = batchData.sociologia?.questions || []
+        
+        totalCount = batchData.historia?.total || 0
         
         if (process.env.NODE_ENV === 'development') {
           console.log("Questões de história:", historiaData.length, "questões")
           console.log("Questões de geografia:", geografiaData.length, "questões")
           console.log("Questões de filosofia:", filosofiaData.length, "questões")
           console.log("Questões de sociologia:", sociologiaData.length, "questões")
+          console.log("Total de questões:", totalCount)
         }
         
-        // Combinar todas as questões de ciências humanas
         allData = [...historiaData, ...geografiaData, ...filosofiaData, ...sociologiaData]
         setSubjectName("Ciências Humanas")
       } else if (subjectToLoad === "ciencias-natureza") {
-        // Carregar todas as matérias de ciências da natureza em uma única requisição
-        const response = await fetch('/api/questions/batch', {
+        const response = await fetch('/api/questions/batch-progressive', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'max-age=3600',
           },
           body: JSON.stringify({
-            subjects: ['biologia', 'quimica', 'fisica']
+            subjects: ['biologia', 'quimica', 'fisica'],
+            offset,
+            limit
           })
         })
         
         if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
         const batchData = await response.json()
         
-        const biologiaData = batchData.biologia || []
-        const quimicaData = batchData.quimica || []
-        const fisicaData = batchData.fisica || []
+        const biologiaData = batchData.biologia?.questions || []
+        const quimicaData = batchData.quimica?.questions || []
+        const fisicaData = batchData.fisica?.questions || []
+        
+        totalCount = batchData.biologia?.total || 0
         
         if (process.env.NODE_ENV === 'development') {
           console.log("Questões de biologia:", biologiaData.length, "questões")
           console.log("Questões de química:", quimicaData.length, "questões")
           console.log("Questões de física:", fisicaData.length, "questões")
+          console.log("Total de questões:", totalCount)
         }
         
-        // Combinar todas as questões de ciências da natureza
         allData = [...biologiaData, ...quimicaData, ...fisicaData]
         setSubjectName("Ciências da Natureza")
       } else {
-        // Para outros subjects, carregar apenas as questões do subject específico
-        const response = await fetch(`/api/questions/${subjectToLoad}`, {
-          cache: 'force-cache',
+        // Para outros subjects, usar API progressiva também
+        const response = await fetch('/api/questions/batch-progressive', {
+          method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'Cache-Control': 'max-age=3600',
-          }
+          },
+          body: JSON.stringify({
+            subjects: [subjectToLoad],
+            offset,
+            limit
+          })
         })
+        
         if (!response.ok) throw new Error(`Erro ao carregar questões de ${subjectToLoad}: ${response.status}`)
-        allData = await response.json()
+        const batchData = await response.json()
+        
+        allData = batchData[subjectToLoad]?.questions || []
+        totalCount = batchData[subjectToLoad]?.total || 0
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Questões de", subjectToLoad, ":", allData.length, "questões")
+          console.log("Total de questões:", totalCount)
+        }
+        
         setSubjectName(getSubjectName(subjectToLoad))
       }
       
       if (process.env.NODE_ENV === 'development') {
-        console.log("Total de questões carregadas:", allData.length, "questões")
+        console.log("Questões carregadas neste lote:", allData.length, "questões")
+        console.log("Total de questões disponíveis:", totalCount)
       }
       
-      // Otimização: Embaralhamento mais eficiente usando algoritmo moderno
+      // Embaralhar apenas o lote atual
       const shuffled = allData.sort(() => Math.random() - 0.5)
       
-      // Armazenar no cache
-      questionsCache.current.set(cacheKey, shuffled)
-      
-      setQuestions(shuffled)
-      
-      // Começar pela primeira posição do array embaralhado
-      setCurrentQuestionIndex(shuffled.length > 0 ? 0 : null)
+      if (offset === 0) {
+        // Primeiro carregamento
+        setQuestions(shuffled)
+        setTotalQuestionsCount(totalCount)
+        setLoadedQuestionsCount(shuffled.length)
+        setAllQuestionsLoaded(shuffled.length >= totalCount)
+        setCurrentQuestionIndex(shuffled.length > 0 ? 0 : null)
+        
+        // Armazenar no cache
+        questionsCache.current.set(cacheKey, shuffled)
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Questões armazenadas no cache para:", cacheKey)
+        }
+      } else {
+        // Carregamento adicional - adicionar às questões existentes
+        setQuestions(prev => [...prev, ...shuffled])
+        setLoadedQuestionsCount(prev => prev + shuffled.length)
+        setAllQuestionsLoaded(loadedQuestionsCount + shuffled.length >= totalCount)
+      }
       // iniciar timer total a partir do momento em que as questões estiverem prontas
-      if (shuffled.length > 0) {
+      if (shuffled.length > 0 && offset === 0) {
         // limpar caso já exista (segurança)
         if (totalTimerId.current) {
           clearInterval(totalTimerId.current)
@@ -374,13 +430,33 @@ export default function QuestionsPage() {
         }, 1000)
       }
     } catch (error) {
-      console.error("Erro ao carregar questões:", error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Erro ao carregar questões:", error)
+      }
     } finally {
       setLoading(false)
+      setIsLoadingMore(false)
     }
   }
 
   const currentQuestion = currentQuestionIndex !== null ? questions[currentQuestionIndex] : undefined
+
+  // Função para carregar mais questões quando necessário
+  const loadMoreQuestions = async () => {
+    if (isLoadingMore || allQuestionsLoaded) return
+    
+    const remainingQuestions = questions.length - (currentQuestionIndex || 0)
+    if (remainingQuestions <= 5) { // Carregar mais quando restam 5 ou menos questões
+      await loadQuestions(subject, loadedQuestionsCount, 20)
+    }
+  }
+
+  // Verificar se precisa carregar mais questões
+  useEffect(() => {
+    if (currentQuestionIndex !== null && !allQuestionsLoaded) {
+      loadMoreQuestions()
+    }
+  }, [currentQuestionIndex, allQuestionsLoaded, isLoadingMore])
 
   // Handlers
   const handleSelectAnswer = (letter: string) => !isAnswered && setSelectedAnswer(letter)
@@ -499,7 +575,7 @@ export default function QuestionsPage() {
 
     const getPerformanceLevel = () => {
       if (percentage >= 80)
-        return { level: "Excelente", color: "text-emerald-400", bgColor: "bg-emerald-500/20", icon: Trophy }
+        return { level: "Excelente!", color: "text-emerald-400", bgColor: "bg-emerald-500/20", icon: Trophy }
       if (percentage >= 60) return { level: "Bom", color: "text-blue-400", bgColor: "bg-blue-500/20", icon: Target }
       if (percentage >= 40)
         return { level: "Regular", color: "text-yellow-400", bgColor: "bg-yellow-500/20", icon: TrendingUp }
@@ -691,7 +767,7 @@ export default function QuestionsPage() {
                     <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
                       <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
                       <span>
-                        Questão {currentQuestionIndex !== null ? currentQuestionIndex + 1 : 0} de {questions.length}
+                        Questão {currentQuestionIndex !== null ? currentQuestionIndex + 1 : 0} de {totalQuestionsCount || questions.length}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
@@ -726,7 +802,7 @@ export default function QuestionsPage() {
             </div>
             <div className="flex justify-between text-xs text-slate-300 sm:hidden">
               <span>
-                Questão {currentQuestionIndex !== null ? currentQuestionIndex + 1 : 0}/{questions.length}
+                Questão {currentQuestionIndex !== null ? currentQuestionIndex + 1 : 0}/{totalQuestionsCount || questions.length}
               </span>
               <span>
                 {Math.floor(totalTime / 60)}:{(totalTime % 60).toString().padStart(2, "0")}
@@ -870,7 +946,7 @@ export default function QuestionsPage() {
                         <XCircle className="h-6 w-6 text-red-400" />
                       )}
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold text-white text-lg">
                         {selectedAnswer === currentQuestion.correctAlternative
                           ? "🎉 Resposta correta!"
@@ -882,6 +958,15 @@ export default function QuestionsPage() {
                           : `A alternativa correta é a letra ${currentQuestion.correctAlternative}.`}
                       </p>
                     </div>
+                    {selectedAnswer !== currentQuestion.correctAlternative && (
+                      <div className="ml-4">
+                        <ExplanationButton 
+                          question={currentQuestion} 
+                          isAnswered={isAnswered}
+                          userAnswer={selectedAnswer}
+                        />
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -3,7 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import "@/app/globals.css"
 import { Inter, Poppins } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "next-themes"
 import { Suspense } from "react"
 
 const inter = Inter({
@@ -35,7 +35,7 @@ export default function RootLayout({
         className={`${inter.className} bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 antialiased`}
       >
         <Suspense fallback={null}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ThemeProvider attribute="class">
             {children}
           </ThemeProvider>
           <SpeedInsights/>

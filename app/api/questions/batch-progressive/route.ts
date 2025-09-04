@@ -45,7 +45,9 @@ function readQuestionsRecursively(dir: string, questions: Question[] = []): Ques
         questionData.dirName = path.basename(path.dirname(filePath))
         questions.push(questionData)
       } catch (error) {
-        console.error(`Erro ao ler arquivo ${filePath}:`, error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`Erro ao ler arquivo ${filePath}:`, error)
+        }
       }
     }
   }
@@ -82,7 +84,7 @@ function filterQuestionsByDiscipline(questions: Question[], discipline: string):
 
 export async function POST(request: Request) {
   try {
-    const { subjects } = await request.json()
+    const { subjects, offset = 0, limit = 50 } = await request.json()
     
     if (!Array.isArray(subjects)) {
       return NextResponse.json({ error: "subjects deve ser um array" }, { status: 400 })
@@ -103,26 +105,38 @@ export async function POST(request: Request) {
       questionsCache.set("all", allQuestions)
     }
 
-    const result: Record<string, Question[]> = {}
+    const result: Record<string, { questions: Question[], total: number }> = {}
 
     // Filtrar questões para cada disciplina solicitada
     for (const subject of subjects) {
-      if (questionsCache.has(subject)) {
-        result[subject] = questionsCache.get(subject)!
+      const cacheKey = `${subject}-all`
+      let filteredQuestions: Question[]
+      
+      if (questionsCache.has(cacheKey)) {
+        filteredQuestions = questionsCache.get(cacheKey)!
       } else {
-        const filteredQuestions = filterQuestionsByDiscipline(allQuestions, subject)
+        filteredQuestions = filterQuestionsByDiscipline(allQuestions, subject)
         filteredQuestions.sort((a, b) => {
           if (a.year !== b.year) return a.year - b.year
           return a.index - b.index
         })
-        questionsCache.set(subject, filteredQuestions)
-        result[subject] = filteredQuestions
+        questionsCache.set(cacheKey, filteredQuestions)
+      }
+
+      // Aplicar paginação
+      const paginatedQuestions = filteredQuestions.slice(offset, offset + limit)
+      
+      result[subject] = {
+        questions: paginatedQuestions,
+        total: filteredQuestions.length
       }
     }
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error("Erro ao carregar questões em lote:", error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error("Erro ao carregar questões progressivamente:", error)
+    }
     return NextResponse.json({ error: "Erro ao carregar questões" }, { status: 500 })
   }
 }
