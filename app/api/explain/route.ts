@@ -31,12 +31,12 @@ export async function POST(request: Request) {
     }
 
     // Verificar se a API key está configurada
-    const apiKey = process.env.OPENROUTER_API_KEY
+    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error("OPENROUTER_API_KEY não configurada")
-      }
-      return NextResponse.json({ error: "Serviço de explicação não disponível" }, { status: 500 })
+      console.error("GROQ_API_KEY não configurada no Vercel")
+      return NextResponse.json({ 
+        error: "Serviço de explicação temporariamente indisponível. Configure a chave da API no Vercel." 
+      }, { status: 500 })
     }
 
     // Encontrar as alternativas correta e incorreta
@@ -78,45 +78,50 @@ INSTRUÇÕES:
 - Seja direto e didático, como um professor conversando
 - Se houver imagens mencionadas, considere que elas contêm informações importantes para a resolução
 - Use formatação simples: **texto importante** para destacar conceitos chave
-- Máximo de 250 palavras
 
 EXPLICAÇÃO:`
 
-    // Fazer a requisição para o OpenRouter com streaming
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // Fazer a requisição para o Groq API com streaming
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        'X-Title': 'Pergamo - Explicações ENEM',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'llama-3.1-8b-instant',
         messages: [
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 400,
+        max_tokens: 500,
         temperature: 0.7,
-        top_p: 0.9,
         stream: true,
       }),
     })
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('OpenRouter response status:', response.status)
-      console.log('OpenRouter response headers:', Object.fromEntries(response.headers.entries()))
+      console.log('Groq API response status:', response.status)
+      console.log('Groq API response headers:', Object.fromEntries(response.headers.entries()))
     }
 
     if (!response.ok) {
       const errorText = await response.text()
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Erro na API do OpenRouter:', response.status, response.statusText, errorText)
+      console.error('Erro na API do Groq:', response.status, response.statusText, errorText)
+      
+      // Detectar rate limit
+      if (response.status === 429) {
+        return NextResponse.json({ 
+          error: "RATE_LIMIT",
+          message: "Muitas solicitações. Aguarde alguns segundos e tente novamente."
+        }, { status: 429 })
       }
-      return NextResponse.json({ error: "Erro ao gerar explicação" }, { status: 500 })
+      
+      return NextResponse.json({ 
+        error: "Erro ao gerar explicação. Tente novamente em alguns instantes." 
+      }, { status: 500 })
     }
 
     // Configurar streaming response
@@ -171,9 +176,9 @@ EXPLICAÇÃO:`
       },
     })
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Erro ao gerar explicação:', error)
-    }
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    console.error('Erro ao gerar explicação:', error)
+    return NextResponse.json({ 
+      error: "Erro interno do servidor. Tente novamente." 
+    }, { status: 500 })
   }
 }
