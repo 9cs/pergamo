@@ -959,7 +959,7 @@ export default function QuestionsPage() {
                       </p>
                     </div>
                     {selectedAnswer !== currentQuestion.correctAlternative && (
-                      <div className="ml-4">
+                      <div className="ml-4 hidden sm:block">
                         <ExplanationButton 
                           question={currentQuestion} 
                           isAnswered={isAnswered}
@@ -972,7 +972,7 @@ export default function QuestionsPage() {
               </AnimatePresence>
             </CardContent>
 
-            <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 mt-6 relative">
+            <CardFooter className="flex flex-col sm:flex-row gap-3 mt-6 relative">
               <div className="flex gap-3 w-full sm:w-auto">
                 <Button
                   onClick={handleConfirmAnswer}
@@ -992,6 +992,16 @@ export default function QuestionsPage() {
                   </Button>
                 )}
               </div>
+              {/* Botão de explicação para mobile */}
+              {isAnswered && selectedAnswer !== currentQuestion.correctAlternative && (
+                <div className="w-full sm:hidden">
+                  <ExplanationButton 
+                    question={currentQuestion} 
+                    isAnswered={isAnswered}
+                    userAnswer={selectedAnswer}
+                  />
+                </div>
+              )}
               {isAnswered && (
                 <Button
                   onClick={handleNextQuestion}

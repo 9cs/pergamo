@@ -276,14 +276,14 @@ export default function ExplanationButton({ question, isAnswered, userAnswer }: 
       <Button
         onClick={handleGetExplanation}
         disabled={!isAnswered || isLoading}
-        className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
       >
+        {isLoading ? "Gerando..." : "Mostrar explicação"}
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           <Bot className="h-4 w-4" />
         )}
-        {isLoading ? "Gerando..." : "Mostrar explicação"}
       </Button>
 
                    {mounted && createPortal(
