@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import { Button } from "@/components/ui/button"
-import { Bot, Loader2, X } from "lucide-react"
+import { Bot, Loader2, X, AlertTriangle } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface Question {
@@ -42,10 +42,33 @@ export default function ExplanationButton({ question, isAnswered, userAnswer }: 
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [isFromCache, setIsFromCache] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
+  const warningRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Função para calcular posição do tooltip
+  const updateTooltipPosition = () => {
+    if (warningRef.current) {
+      const rect = warningRef.current.getBoundingClientRect()
+      setTooltipPosition({
+        x: rect.right - 225, // 256px é a largura do tooltip (w-64)
+        y: rect.top - 92 // 80px acima do ícone para dar espaço
+      })
+    }
+  }
+
+  const handleTooltipShow = () => {
+    updateTooltipPosition()
+    setShowTooltip(true)
+  }
+
+  const handleTooltipHide = () => {
+    setShowTooltip(false)
+  }
 
   // Gerar chave única para a combinação questão + resposta do usuário
   const getCacheKey = () => {
@@ -161,35 +184,48 @@ export default function ExplanationButton({ question, isAnswered, userAnswer }: 
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="relative bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl p-6 shadow-2xl w-[90vw] max-w-[600px] max-h-[85vh] overflow-auto"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <Bot className="h-5 w-5 text-blue-400" />
-              </div>
-                             <div>
-                 <h3 className="text-lg font-semibold text-foreground">
-                   Explicação da Questão
-                 </h3>
-                 <p className="text-sm text-muted-foreground">
-                   Questão {question.index} - {question.year}
-                   {isFromCache && (
-                     <span className="ml-2 text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">
-                       Cache
-                     </span>
-                   )}
-                 </p>
+                         {/* Header */}
+               <div className="flex items-center justify-between mb-4">
+                 <div className="flex items-center gap-3">
+                   <div className="p-2 bg-blue-500/20 rounded-lg">
+                     <Bot className="h-5 w-5 text-blue-400" />
+                   </div>
+                   <div>
+                     <h3 className="text-lg font-semibold text-foreground">
+                       Explicação da Questão
+                     </h3>
+                     <p className="text-sm text-muted-foreground">
+                       Questão {question.index} - {question.year}
+                       {isFromCache && (
+                         <span className="ml-2 text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">
+                           Cache
+                         </span>
+                       )}
+                     </p>
+                   </div>
+                 </div>
+                 <div className="flex items-center gap-2">
+                   {/* Warning Icon with Tooltip */}
+                   <div 
+                     ref={warningRef}
+                     className="relative"
+                     onMouseEnter={handleTooltipShow}
+                     onMouseLeave={handleTooltipHide}
+                   >
+                     <div className="p-2 bg-amber-500/20 rounded-full cursor-help">
+                       <AlertTriangle className="h-4 w-4 text-amber-400" />
+                     </div>
+                   </div>
+                   <Button
+                     variant="ghost"
+                     size="icon"
+                     onClick={handleCloseExplanation}
+                     className="text-muted-foreground hover:text-foreground rounded-full"
+                   >
+                     <X className="h-5 w-5" />
+                   </Button>
+                 </div>
                </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCloseExplanation}
-              className="text-muted-foreground hover:text-foreground rounded-full"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
 
           {/* Content */}
           <div className="space-y-4">
@@ -250,12 +286,41 @@ export default function ExplanationButton({ question, isAnswered, userAnswer }: 
         {isLoading ? "Gerando..." : "Mostrar explicação"}
       </Button>
 
-      {mounted && createPortal(
-        <AnimatePresence>
-          {modalContent}
-        </AnimatePresence>, 
-        document.body
-      )}
-    </>
-  )
-}
+                   {mounted && createPortal(
+               <AnimatePresence>
+                 {modalContent}
+               </AnimatePresence>,
+               document.body
+             )}
+
+             {/* Tooltip Portal */}
+             {mounted && createPortal(
+               <AnimatePresence>
+                 {showTooltip && (
+                   <motion.div
+                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                     animate={{ opacity: 1, y: 0, scale: 1 }}
+                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                     transition={{ duration: 0.2, ease: "easeOut" }}
+                     className="fixed z-[10000] w-64 p-3 bg-gray-900 border border-border/70 text-white text-xs rounded-lg shadow-lg pointer-events-none"
+                     style={{
+                       left: `${tooltipPosition.x}px`,
+                       top: `${tooltipPosition.y}px`,
+                     }}
+                   >
+                     <div className="relative">
+                       <p className="text-center">
+                         Esta explicação é gerada por IA e pode não estar 100% correta. 
+                         Consulte um professor em caso de dúvidas.
+                       </p>
+                       {/* Arrow */}
+                       <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                     </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>,
+               document.body
+             )}
+           </>
+         )
+       }
