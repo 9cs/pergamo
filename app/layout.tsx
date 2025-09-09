@@ -1,6 +1,4 @@
 import type React from "react"
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/next"
 import "@/app/globals.css"
 import { Inter, Poppins } from "next/font/google"
 import { ThemeProvider } from "next-themes"
@@ -38,8 +36,6 @@ export default function RootLayout({
           <ThemeProvider attribute="class">
             {children}
           </ThemeProvider>
-          <SpeedInsights/>
-          <Analytics />
         </Suspense>
       </body>
     </html>

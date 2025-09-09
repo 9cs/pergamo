@@ -58,6 +58,21 @@ export async function POST(request: Request) {
       return `\n${prefix} IMAGEM: ${alternative.file}`
     }
 
+    // Verificar se as alternativas são baseadas em imagens
+    const hasImageAlternatives = question.alternatives.some(alt => alt.text === null && alt.file !== null)
+    
+    // Construir descrição das alternativas para questões baseadas em imagens
+    const buildImageAlternativesDescription = () => {
+      if (!hasImageAlternatives) return ""
+      
+      return `\n\nIMPORTANTE: Esta questão tem alternativas baseadas em imagens. As alternativas são:
+${question.alternatives.map(alt => 
+  `- Alternativa ${alt.letter}: ${alt.file ? 'Imagem disponível' : 'Sem imagem'} ${alt.isCorrect ? '(CORRETA)' : '(incorreta)'}`
+).join('\n')}
+
+A questão solicita que o estudante analise as imagens das alternativas e escolha a que melhor responde ao enunciado.`
+    }
+
     const prompt = `Você é um professor especialista em questões do ENEM. Explique de forma clara e direta o erro do estudante, falando diretamente com ele.
 
 ENUNCIADO:
@@ -65,9 +80,11 @@ ${question.title}
 
 ${question.context ? `CONTEXTO:\n${question.context}\n` : ''}${buildAssetInfo(question.files, "ENUNCIADO")}
 
-ALTERNATIVA CORRETA: ${correctAlternative.letter}) ${correctAlternative.text}${buildAlternativeAssetInfo(correctAlternative, "ALTERNATIVA CORRETA")}
+${buildImageAlternativesDescription()}
 
-ALTERNATIVA ESCOLHIDA (INCORRETA): ${userAlternative.letter}) ${userAlternative.text}${buildAlternativeAssetInfo(userAlternative, "ALTERNATIVA ESCOLHIDA")}
+ALTERNATIVA CORRETA: ${correctAlternative.letter}) ${correctAlternative.text || 'Imagem (alternativa baseada em imagem)'}${buildAlternativeAssetInfo(correctAlternative, "ALTERNATIVA CORRETA")}
+
+ALTERNATIVA ESCOLHIDA (INCORRETA): ${userAlternative.letter}) ${userAlternative.text || 'Imagem (alternativa baseada em imagem)'}${buildAlternativeAssetInfo(userAlternative, "ALTERNATIVA ESCOLHIDA")}
 
 INSTRUÇÕES:
 - Fale diretamente com o estudante usando "você" e "sua resposta"
@@ -78,6 +95,7 @@ INSTRUÇÕES:
 - Seja direto e didático, como um professor conversando
 - Se houver imagens mencionadas, considere que elas contêm informações importantes para a resolução
 - Use formatação simples: **texto importante** para destacar conceitos chave
+- ${hasImageAlternatives ? 'IMPORTANTE: Esta questão é baseada em imagens. Explique que o estudante precisa analisar as imagens das alternativas para encontrar a resposta correta. Não mencione URLs específicas, mas explique o conceito por trás da escolha correta.' : ''}
 
 EXPLICAÇÃO:`
 

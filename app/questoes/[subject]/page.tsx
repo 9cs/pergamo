@@ -83,21 +83,95 @@ function SafeImage({ src, alt }: { src: string; alt: string }) {
   )
 }
 
+// Função para extrair nome do arquivo de uma URL
+function extractFileNameFromUrl(url: string): string {
+  try {
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+    const fileName = pathname.split('/').pop()
+    return fileName || ''
+  } catch {
+    // Se não for uma URL válida, retornar o próprio texto
+    return url.split('/').pop() || url
+  }
+}
+
 // Formatar contexto + imagens inline
 function formatContext(context: string | undefined | null, files: string[], dirName?: string, year?: number) {
   if (!context) return null
-  const parts = context.split("[imagem]")
-  let fileIndex = 0
-  const basePath = year && dirName ? `/year/${year}/questions/${dirName}` : ""
+  
+  // Detectar imagens em formato markdown ![](URL)
+  const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
+  const parts = []
+  let lastIndex = 0
+  let match
+  
+  while ((match = imageRegex.exec(context)) !== null) {
+    // Adicionar texto antes da imagem
+    if (match.index > lastIndex) {
+      parts.push({
+        type: 'text',
+        content: context.slice(lastIndex, match.index)
+      })
+    }
+    
+    // Adicionar a imagem
+    const imageUrl = match[2]
+    const fileName = extractFileNameFromUrl(imageUrl)
+    parts.push({
+      type: 'image',
+      fileName: fileName,
+      alt: match[1] || 'Imagem da questão'
+    })
+    
+    lastIndex = match.index + match[0].length
+  }
+  
+  // Adicionar texto restante
+  if (lastIndex < context.length) {
+    parts.push({
+      type: 'text',
+      content: context.slice(lastIndex)
+    })
+  }
+  
+  // Se não encontrou imagens markdown, usar o método antigo com [imagem]
+  if (parts.length === 0) {
+    const oldParts = context.split("[imagem]")
+    let fileIndex = 0
+    const basePath = year && dirName ? `/year/${year}/questions/${dirName}` : ""
 
+    return (
+      <div className="context-block whitespace-pre-line">
+        {oldParts.map((part, i) => (
+          <div key={i} className="mb-4">
+            {parseMarkdown(part)}
+            {i < oldParts.length - 1 && files[fileIndex] && (
+              <div className="my-4 flex justify-center">
+                <SafeImage src={`${basePath}/${files[fileIndex++]}`} alt={`Imagem da questão`} />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+  
+  // Processar as partes encontradas
+  const basePath = year && dirName ? `/year/${year}/questions/${dirName}` : ""
+  
   return (
     <div className="context-block whitespace-pre-line">
       {parts.map((part, i) => (
         <div key={i} className="mb-4">
-          {parseMarkdown(part)}
-          {i < parts.length - 1 && files[fileIndex] && (
+          {part.type === 'text' ? (
+            parseMarkdown(part.content)
+          ) : (
             <div className="my-4 flex justify-center">
-              <SafeImage src={`${basePath}/${files[fileIndex++]}`} alt={`Imagem da questão`} />
+              <SafeImage 
+                src={`${basePath}/${part.fileName}`} 
+                alt={part.alt || 'Imagem da questão'} 
+              />
             </div>
           )}
         </div>
@@ -144,6 +218,39 @@ export default function QuestionsPage() {
   // Cache de questões no lado do cliente
   const questionsCache = useRef<Map<string, Question[]>>(new Map())
   
+  // Estados para embaralhamento de alternativas
+  const [shuffledAlternatives, setShuffledAlternatives] = useState<Alternative[]>([])
+  const [alternativeMapping, setAlternativeMapping] = useState<Map<string, string>>(new Map())
+  
+  // Função para embaralhar alternativas mantendo a ordem das letras A, B, C, D, E
+  const shuffleAlternatives = (alternatives: Alternative[]) => {
+    // Criar uma cópia das alternativas
+    const shuffled = [...alternatives]
+    
+    // Embaralhar apenas o conteúdo, mantendo as letras na ordem A, B, C, D, E
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    
+    // Reatribuir as letras na ordem correta A, B, C, D, E
+    const letters = ['A', 'B', 'C', 'D', 'E']
+    const reordered = shuffled.map((alt, index) => ({
+      ...alt,
+      letter: letters[index]
+    }))
+    
+    // Criar mapeamento: letra original -> letra na posição embaralhada
+    const mapping = new Map<string, string>()
+    alternatives.forEach((original, index) => {
+      const shuffledIndex = shuffled.findIndex(alt => alt.letter === original.letter)
+      const newLetter = letters[shuffledIndex]
+      mapping.set(original.letter, newLetter)
+    })
+    
+    return { shuffled: reordered, mapping }
+  }
+  
   // Estados para carregamento progressivo
   const [totalQuestionsCount, setTotalQuestionsCount] = useState(0) // Total real de questões
   const [loadedQuestionsCount, setLoadedQuestionsCount] = useState(0) // Quantas já foram carregadas
@@ -165,6 +272,16 @@ export default function QuestionsPage() {
     const q = setInterval(() => setQuestionTime((s) => s + 1), 1000)
     return () => clearInterval(q)
   }, [currentQuestionIndex])
+  
+  // Embaralhar alternativas quando a questão mudar
+  useEffect(() => {
+    if (currentQuestionIndex !== null && questions[currentQuestionIndex]) {
+      const currentQuestion = questions[currentQuestionIndex]
+      const { shuffled, mapping } = shuffleAlternatives(currentQuestion.alternatives)
+      setShuffledAlternatives(shuffled)
+      setAlternativeMapping(mapping)
+    }
+  }, [currentQuestionIndex, questions])
   // garantimos limpar o timer total ao desmontar
   useEffect(() => {
     return () => {
@@ -259,6 +376,8 @@ export default function QuestionsPage() {
       
       // Carregamento progressivo com paginação
       if (subjectToLoad === "linguagens" && selectedLanguage) {
+        // Para linguagens, carregar todas as questões de uma vez (sem paginação)
+        // pois a paginação individual por disciplina causa problemas
         const response = await fetch('/api/questions/batch-progressive', {
           method: 'POST',
           headers: {
@@ -267,8 +386,8 @@ export default function QuestionsPage() {
           },
           body: JSON.stringify({
             subjects: [selectedLanguage, 'portugues', 'literatura', 'artes'],
-            offset,
-            limit
+            offset: 0, // Sempre carregar do início
+            limit: 10000 // Número grande para carregar todas
           })
         })
         
@@ -280,8 +399,11 @@ export default function QuestionsPage() {
         const literaturaData = batchData.literatura?.questions || []
         const artesData = batchData.artes?.questions || []
         
-        // Pegar o total de uma das matérias (todas devem ter o mesmo total)
-        totalCount = batchData[selectedLanguage]?.total || 0
+        // Somar o total de todas as disciplinas de linguagens
+        totalCount = (batchData[selectedLanguage]?.total || 0) + 
+                    (batchData.portugues?.total || 0) + 
+                    (batchData.literatura?.total || 0) + 
+                    (batchData.artes?.total || 0)
         
         if (process.env.NODE_ENV === 'development') {
           console.log("Questões de", selectedLanguage, ":", languageData.length, "questões")
@@ -294,8 +416,14 @@ export default function QuestionsPage() {
         // Criar distribuição melhorada: duplicar questões de língua estrangeira para aparecerem mais
         const languageDataDuplicated = [...languageData, ...languageData] // Duplicar para aparecer 2x mais
         
-        // Combinar questões carregadas
-        allData = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
+        // Combinar todas as questões
+        const allCombined = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
+        
+        // Embaralhar todas as questões
+        const shuffled = allCombined.sort(() => Math.random() - 0.5)
+        
+        // Aplicar paginação manual aqui
+        allData = shuffled.slice(offset, offset + limit)
         setSubjectName(`Linguagens (${getSubjectName(selectedLanguage)})`)
       } else if (subjectToLoad === "ciencias-humanas") {
         const response = await fetch('/api/questions/batch-progressive', {
@@ -319,7 +447,11 @@ export default function QuestionsPage() {
         const filosofiaData = batchData.filosofia?.questions || []
         const sociologiaData = batchData.sociologia?.questions || []
         
-        totalCount = batchData.historia?.total || 0
+        // Somar o total de todas as disciplinas de ciências humanas
+        totalCount = (batchData.historia?.total || 0) + 
+                    (batchData.geografia?.total || 0) + 
+                    (batchData.filosofia?.total || 0) + 
+                    (batchData.sociologia?.total || 0)
         
         if (process.env.NODE_ENV === 'development') {
           console.log("Questões de história:", historiaData.length, "questões")
@@ -352,7 +484,10 @@ export default function QuestionsPage() {
         const quimicaData = batchData.quimica?.questions || []
         const fisicaData = batchData.fisica?.questions || []
         
-        totalCount = batchData.biologia?.total || 0
+        // Somar o total de todas as disciplinas de ciências da natureza
+        totalCount = (batchData.biologia?.total || 0) + 
+                    (batchData.quimica?.total || 0) + 
+                    (batchData.fisica?.total || 0)
         
         if (process.env.NODE_ENV === 'development') {
           console.log("Questões de biologia:", biologiaData.length, "questões")
@@ -445,6 +580,9 @@ export default function QuestionsPage() {
   const loadMoreQuestions = async () => {
     if (isLoadingMore || allQuestionsLoaded) return
     
+    // Para linguagens, não precisamos de carregamento adicional pois carregamos tudo de uma vez
+    if (subject === "linguagens") return
+    
     const remainingQuestions = questions.length - (currentQuestionIndex || 0)
     if (remainingQuestions <= 5) { // Carregar mais quando restam 5 ou menos questões
       await loadQuestions(subject, loadedQuestionsCount, 20)
@@ -458,13 +596,36 @@ export default function QuestionsPage() {
     }
   }, [currentQuestionIndex, allQuestionsLoaded, isLoadingMore])
 
+  // Função para mapear letra embaralhada de volta para a original
+  const getOriginalLetter = (shuffledLetter: string) => {
+    for (const [original, shuffled] of alternativeMapping.entries()) {
+      if (shuffled === shuffledLetter) {
+        return original
+      }
+    }
+    return shuffledLetter // fallback
+  }
+  
+  // Função para encontrar a letra correta na posição embaralhada
+  const getCorrectShuffledLetter = () => {
+    if (!currentQuestion) return null
+    for (const [original, shuffled] of alternativeMapping.entries()) {
+      if (original === currentQuestion.correctAlternative) {
+        return shuffled
+      }
+    }
+    return currentQuestion.correctAlternative // fallback
+  }
+
   // Handlers
   const handleSelectAnswer = (letter: string) => !isAnswered && setSelectedAnswer(letter)
 
   const handleConfirmAnswer = () => {
     if (selectedAnswer && currentQuestion) {
       setIsAnswered(true)
-      const isCorrect = selectedAnswer === currentQuestion.correctAlternative
+      // Mapear a resposta selecionada (letra embaralhada) para a letra original
+      const originalLetter = getOriginalLetter(selectedAnswer)
+      const isCorrect = originalLetter === currentQuestion.correctAlternative
       setStats((prev) => ({
         total: prev.total + 1,
         correct: isCorrect ? prev.correct + 1 : prev.correct,
@@ -856,9 +1017,11 @@ export default function QuestionsPage() {
               </div>
 
               <div className="space-y-3">
-                {currentQuestion.alternatives.map((alt) => {
+                {shuffledAlternatives.map((alt) => {
                   const isSelected = selectedAnswer === alt.letter
-                  const isCorrectAlt = alt.letter === currentQuestion.correctAlternative
+                  // Encontrar a letra correta na posição embaralhada
+                  const correctShuffledLetter = getCorrectShuffledLetter()
+                  const isCorrectAlt = alt.letter === correctShuffledLetter
 
                   const optionClasses = cn(
                     "w-full p-4 sm:p-5 text-left rounded-xl border-2 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] group",
@@ -922,7 +1085,7 @@ export default function QuestionsPage() {
                   <motion.div
                     className={cn(
                       "p-4 sm:p-5 rounded-xl border-2 flex items-start gap-3 shadow-lg",
-                      selectedAnswer === currentQuestion.correctAlternative
+                      selectedAnswer === getCorrectShuffledLetter()
                         ? "border-emerald-400 bg-emerald-500/20 shadow-emerald-500/25"
                         : "border-red-400 bg-red-500/20 shadow-red-500/25",
                     )}
@@ -940,7 +1103,7 @@ export default function QuestionsPage() {
                     exit={{ opacity: 0, y: -20, scale: 0.95 }}
                   >
                     <div className="mt-0.5">
-                      {selectedAnswer === currentQuestion.correctAlternative ? (
+                      {selectedAnswer === getCorrectShuffledLetter() ? (
                         <CheckCircle className="h-6 w-6 text-emerald-400" />
                       ) : (
                         <XCircle className="h-6 w-6 text-red-400" />
@@ -948,22 +1111,23 @@ export default function QuestionsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="font-bold text-white text-lg">
-                        {selectedAnswer === currentQuestion.correctAlternative
+                        {selectedAnswer === getCorrectShuffledLetter()
                           ? "🎉 Resposta correta!"
                           : "❌ Resposta incorreta!"}
                       </p>
                       <p className="text-slate-200 mt-1">
-                        {selectedAnswer === currentQuestion.correctAlternative
+                        {selectedAnswer === getCorrectShuffledLetter()
                           ? `Parabéns! Esse foi seu ${stats.correct}º acerto!`
-                          : `A alternativa correta é a letra ${currentQuestion.correctAlternative}.`}
+                          : `A alternativa correta é a letra ${getCorrectShuffledLetter()}.`}
                       </p>
                     </div>
-                    {selectedAnswer !== currentQuestion.correctAlternative && (
+                    {selectedAnswer !== getCorrectShuffledLetter() && (
                       <div className="ml-4 hidden sm:block">
                         <ExplanationButton 
                           question={currentQuestion} 
                           isAnswered={isAnswered}
                           userAnswer={selectedAnswer}
+                          shuffledAlternatives={shuffledAlternatives}
                         />
                       </div>
                     )}
@@ -993,12 +1157,13 @@ export default function QuestionsPage() {
                 )}
               </div>
               {/* Botão de explicação para mobile */}
-              {isAnswered && selectedAnswer !== currentQuestion.correctAlternative && (
+              {isAnswered && selectedAnswer !== getCorrectShuffledLetter() && (
                 <div className="w-full sm:hidden">
                   <ExplanationButton 
                     question={currentQuestion} 
                     isAnswered={isAnswered}
                     userAnswer={selectedAnswer}
+                    shuffledAlternatives={shuffledAlternatives}
                   />
                 </div>
               )}

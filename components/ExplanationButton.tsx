@@ -30,12 +30,18 @@ interface ExplanationButtonProps {
   question: Question
   isAnswered: boolean
   userAnswer: string | null
+  shuffledAlternatives?: Array<{
+    letter: string
+    text: string
+    file: string | null
+    isCorrect: boolean
+  }>
 }
 
 // Cache global de explicações por questão
 const explanationCache = new Map<string, string>()
 
-export default function ExplanationButton({ question, isAnswered, userAnswer }: ExplanationButtonProps) {
+export default function ExplanationButton({ question, isAnswered, userAnswer, shuffledAlternatives }: ExplanationButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [explanation, setExplanation] = useState<string>("")
   const [showExplanation, setShowExplanation] = useState(false)
@@ -97,12 +103,17 @@ export default function ExplanationButton({ question, isAnswered, userAnswer }: 
     setShowExplanation(true)
 
     try {
+      // Usar alternativas embaralhadas se disponíveis, senão usar as originais
+      const questionToSend = shuffledAlternatives 
+        ? { ...question, alternatives: shuffledAlternatives }
+        : question
+
       const response = await fetch('/api/explain', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question, userAnswer }),
+        body: JSON.stringify({ question: questionToSend, userAnswer }),
       })
 
       if (!response.ok) {

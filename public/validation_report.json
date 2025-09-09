@@ -1,0 +1,29 @@
+{
+  "total_questions": 2758,
+  "valid_questions": 2758,
+  "missing_area": [],
+  "missing_discipline": [],
+  "invalid_mapping": [],
+  "file_errors": [],
+  "area_stats": {
+    "ciencias-humanas": 801,
+    "ciencias-natureza": 626,
+    "linguagens": 687,
+    "matematica": 644
+  },
+  "discipline_stats": {
+    "geografia": 209,
+    "biologia": 220,
+    "portugues": 324,
+    "literatura": 200,
+    "sociologia": 219,
+    "artes": 84,
+    "ingles": 51,
+    "quimica": 187,
+    "matematica": 644,
+    "fisica": 219,
+    "historia": 286,
+    "filosofia": 87,
+    "espanhol": 28
+  }
+}
