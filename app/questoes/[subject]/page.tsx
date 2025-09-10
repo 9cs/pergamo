@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import ExplanationButton from "@/components/ExplanationButton"
+import ClickableImage from "@/components/ClickableImage"
 import {
   Home,
   ArrowRight,
@@ -67,18 +68,17 @@ function parseMarkdown(text: string | undefined | null) {
   })
 }
 
-// SafeImage com fallback
+// SafeImage com fallback e clique para ampliar
 function SafeImage({ src, alt }: { src: string; alt: string }) {
   const [error, setError] = useState(false)
   if (error) {
     return <img src="/placeholder.svg" alt="Imagem não encontrada" className="max-w-full h-auto rounded-md" />
   }
   return (
-    <img
+    <ClickableImage
       src={src || "/placeholder.svg"}
       alt={alt}
       className="max-w-full h-auto rounded-md"
-      onError={() => setError(true)}
     />
   )
 }
@@ -1062,7 +1062,7 @@ export default function QuestionsPage() {
                           {alt.text && parseMarkdown(alt.text)}
                           {alt.file && (
                             <div className="mt-3 flex justify-center">
-                              <img
+                              <ClickableImage
                                 src={alt.file || "/placeholder.svg"}
                                 alt={`Alternativa ${alt.letter}`}
                                 className="max-h-48 rounded-lg shadow-lg"

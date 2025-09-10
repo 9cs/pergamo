@@ -60,9 +60,10 @@ function filterQuestionsByDiscipline(questions: Question[], discipline: string):
   if (discipline === "ingles") {
     return questions.filter((q) => {
       const dir = (q.dirName || "").toLowerCase()
+      // Priorizar o campo language sobre discipline para línguas estrangeiras
       return (
-        q.discipline === "ingles" ||
         (q.language && q.language.toLowerCase() === "ingles") ||
+        q.discipline === "ingles" ||
         dir.endsWith("-ingles") || dir === "ingles"
       )
     })
@@ -71,9 +72,10 @@ function filterQuestionsByDiscipline(questions: Question[], discipline: string):
   if (discipline === "espanhol") {
     return questions.filter((q) => {
       const dir = (q.dirName || "").toLowerCase()
+      // Priorizar o campo language sobre discipline para línguas estrangeiras
       return (
-        q.discipline === "espanhol" ||
         (q.language && q.language.toLowerCase() === "espanhol") ||
+        q.discipline === "espanhol" ||
         dir.endsWith("-espanhol") || dir === "espanhol"
       )
     })
