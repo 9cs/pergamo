@@ -87,12 +87,14 @@ ALTERNATIVA CORRETA: ${correctAlternative.letter}) ${correctAlternative.text || 
 ALTERNATIVA ESCOLHIDA (INCORRETA): ${userAlternative.letter}) ${userAlternative.text || 'Imagem (alternativa baseada em imagem)'}${buildAlternativeAssetInfo(userAlternative, "ALTERNATIVA ESCOLHIDA")}
 
 INSTRUÇÕES:
-- Fale diretamente com o estudante usando "você" e "sua resposta"
-- Explique por que a resposta escolhida está errada
+- Fale diretamente com o estudante, como se estivesse explicando para ele em uma conversa.
+- Se o enunciado estiver em inglês, use português para responder. Somos brasileiros.
+- Não precisa ficar falando "estudante", fale como se estivesse conversando com ele.
+- Explique por que a resposta escolhida pelo estudante está errada
 - Mostre por que a resposta correta é a melhor opção
-- Foque no conceito principal que o estudante precisa entender
-- Use linguagem acessível para estudantes do ensino médio
-- Seja direto e didático, como um professor conversando
+- Foque no conceito principal que o estudante precisa entender, sem se extender muito.
+- Use linguagem acessível para estudantes do ensino médio.
+- Seja direto e didático, como um professor conversando com o estudante.
 - Se houver imagens mencionadas, considere que elas contêm informações importantes para a resolução
 - Use formatação simples: **texto importante** para destacar conceitos chave
 - ${hasImageAlternatives ? 'IMPORTANTE: Esta questão é baseada em imagens. Explique que o estudante precisa analisar as imagens das alternativas para encontrar a resposta correta. Não mencione URLs específicas, mas explique o conceito por trás da escolha correta.' : ''}
