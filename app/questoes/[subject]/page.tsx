@@ -224,6 +224,11 @@ export default function QuestionsPage() {
   
   // Função para embaralhar alternativas mantendo a ordem das letras A, B, C, D, E
   const shuffleAlternatives = (alternatives: Alternative[]) => {
+    // Verificar se alternatives existe e é um array
+    if (!alternatives || !Array.isArray(alternatives)) {
+      return { shuffled: [], mapping: new Map() }
+    }
+    
     // Criar uma cópia das alternativas
     const shuffled = [...alternatives]
     
@@ -277,9 +282,11 @@ export default function QuestionsPage() {
   useEffect(() => {
     if (currentQuestionIndex !== null && questions[currentQuestionIndex]) {
       const currentQuestion = questions[currentQuestionIndex]
-      const { shuffled, mapping } = shuffleAlternatives(currentQuestion.alternatives)
-      setShuffledAlternatives(shuffled)
-      setAlternativeMapping(mapping)
+      if (currentQuestion && currentQuestion.alternatives) {
+        const { shuffled, mapping } = shuffleAlternatives(currentQuestion.alternatives)
+        setShuffledAlternatives(shuffled)
+        setAlternativeMapping(mapping)
+      }
     }
   }, [currentQuestionIndex, questions])
   // garantimos limpar o timer total ao desmontar
