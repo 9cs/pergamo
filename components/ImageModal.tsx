@@ -234,7 +234,7 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
 
         {/* Instruções */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-sm text-center">
-          <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
+          <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 mb-3">
             <p className="hidden sm:block text-white font-medium">
               Use a roda do mouse para zoom • Arraste para mover • Clique fora para fechar
             </p>
