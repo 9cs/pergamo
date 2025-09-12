@@ -28,12 +28,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${inter.variable} ${poppins.variable} dark`}>
       <body
-        className={`${inter.className} bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 antialiased`}
+        className={`${inter.className} bg-neutral-900 text-neutral-50 antialiased`}
       >
         <Suspense fallback={null}>
-          <ThemeProvider attribute="class">
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
             {children}
           </ThemeProvider>
         </Suspense>

@@ -38,7 +38,6 @@ interface ExplanationButtonProps {
   }>
 }
 
-// Cache global de explicações por questão
 const explanationCache = new Map<string, string>()
 
 export default function ExplanationButton({ question, isAnswered, userAnswer, shuffledAlternatives }: ExplanationButtonProps) {
@@ -56,13 +55,12 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
     setMounted(true)
   }, [])
 
-  // Função para calcular posição do tooltip
   const updateTooltipPosition = () => {
     if (warningRef.current) {
       const rect = warningRef.current.getBoundingClientRect()
       setTooltipPosition({
-        x: rect.right - 225, // 256px é a largura do tooltip (w-64)
-        y: rect.top - 92 // 80px acima do ícone para dar espaço
+        x: rect.right - 225,
+        y: rect.top - 92
       })
     }
   }
@@ -76,7 +74,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
     setShowTooltip(false)
   }
 
-  // Gerar chave única para a combinação questão + resposta do usuário
   const getCacheKey = () => {
     if (!userAnswer) return null
     return `${question.index}-${question.year}-${userAnswer}`
@@ -88,7 +85,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
     const cacheKey = getCacheKey()
     if (!cacheKey) return
 
-    // Verificar se já existe explicação no cache
     if (explanationCache.has(cacheKey)) {
       setExplanation(explanationCache.get(cacheKey)!)
       setIsFromCache(true)
@@ -103,7 +99,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
     setShowExplanation(true)
 
     try {
-      // Usar alternativas embaralhadas se disponíveis, senão usar as originais
       const questionToSend = shuffledAlternatives 
         ? { ...question, alternatives: shuffledAlternatives }
         : question
@@ -148,13 +143,11 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                 setExplanation(fullExplanation)
               }
             } catch (e) {
-              // Ignorar linhas inválidas
             }
           }
         }
       }
 
-      // Salvar no cache após completar
       if (fullExplanation) {
         explanationCache.set(cacheKey, fullExplanation)
       }
@@ -169,7 +162,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
   const handleCloseExplanation = () => {
     setShowExplanation(false)
     setError(null)
-    // Não limpar explanation para manter no cache
   }
 
     const modalContent = showExplanation ? (
@@ -177,7 +169,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
         style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999 }}
         className="flex items-center justify-center"
       >
-        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -187,7 +178,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
           onClick={handleCloseExplanation}
         />
 
-        {/* Modal - centralizado pelo flex container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -195,7 +185,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="relative bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl p-6 shadow-2xl w-[90vw] max-w-[600px] max-h-[85vh] overflow-auto"
         >
-                         {/* Header */}
                <div className="flex items-center justify-between mb-4">
                  <div className="flex items-center gap-3">
                    <div className="p-2 bg-blue-500/20 rounded-lg">
@@ -216,7 +205,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                    </div>
                  </div>
                  <div className="flex items-center gap-2">
-                   {/* Warning Icon with Tooltip */}
                    <div 
                      ref={warningRef}
                      className="relative"
@@ -238,7 +226,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                  </div>
                </div>
 
-          {/* Content */}
           <div className="space-y-4">
             {error ? (
                   <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -262,7 +249,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                  )}
               </div>
 
-              {/* Footer */}
               <div className="mt-6 pt-4 border-t border-border/50">
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">
@@ -304,7 +290,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                document.body
              )}
 
-             {/* Tooltip Portal */}
              {mounted && createPortal(
                <AnimatePresence>
                  {showTooltip && (
@@ -324,7 +309,6 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                          Esta explicação é gerada por IA e pode não estar 100% correta. 
                          Consulte um professor em caso de dúvidas.
                        </p>
-                       {/* Arrow */}
                        <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                      </div>
                    </motion.div>

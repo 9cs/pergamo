@@ -25,3 +25,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# filtros de questoes
+/public/filter_errors.log
+/public/filter_questions_ai.py
+/public/requirements.txt
+/public/run_filter.py
+/public/validation_report.json

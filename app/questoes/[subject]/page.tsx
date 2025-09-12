@@ -25,7 +25,6 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 
-// Tipos
 interface Alternative {
   letter: string
   text: string
@@ -49,7 +48,6 @@ interface Question {
   dirName?: string
 }
 
-// Função parse markdown simples
 function parseMarkdown(text: string | undefined | null) {
   if (!text) return null
   const boldParts = text.split(/(\*\*[^*]+\*\*)/g)
@@ -68,7 +66,6 @@ function parseMarkdown(text: string | undefined | null) {
   })
 }
 
-// SafeImage com fallback e clique para ampliar
 function SafeImage({ src, alt }: { src: string; alt: string }) {
   const [error, setError] = useState(false)
   if (error) {
@@ -83,7 +80,6 @@ function SafeImage({ src, alt }: { src: string; alt: string }) {
   )
 }
 
-// Função para extrair nome do arquivo de uma URL
 function extractFileNameFromUrl(url: string): string {
   try {
     const urlObj = new URL(url)
@@ -91,23 +87,19 @@ function extractFileNameFromUrl(url: string): string {
     const fileName = pathname.split('/').pop()
     return fileName || ''
   } catch {
-    // Se não for uma URL válida, retornar o próprio texto
     return url.split('/').pop() || url
   }
 }
 
-// Formatar contexto + imagens inline
 function formatContext(context: string | undefined | null, files: string[], dirName?: string, year?: number) {
   if (!context) return null
   
-  // Detectar imagens em formato markdown ![](URL)
   const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
   const parts = []
   let lastIndex = 0
   let match
   
   while ((match = imageRegex.exec(context)) !== null) {
-    // Adicionar texto antes da imagem
     if (match.index > lastIndex) {
       parts.push({
         type: 'text',
@@ -115,7 +107,6 @@ function formatContext(context: string | undefined | null, files: string[], dirN
       })
     }
     
-    // Adicionar a imagem
     const imageUrl = match[2]
     const fileName = extractFileNameFromUrl(imageUrl)
     parts.push({
@@ -127,7 +118,6 @@ function formatContext(context: string | undefined | null, files: string[], dirN
     lastIndex = match.index + match[0].length
   }
   
-  // Adicionar texto restante
   if (lastIndex < context.length) {
     parts.push({
       type: 'text',
@@ -135,7 +125,6 @@ function formatContext(context: string | undefined | null, files: string[], dirN
     })
   }
   
-  // Se não encontrou imagens markdown, usar o método antigo com [imagem]
   if (parts.length === 0) {
     const oldParts = context.split("[imagem]")
     let fileIndex = 0
@@ -157,7 +146,6 @@ function formatContext(context: string | undefined | null, files: string[], dirN
     )
   }
   
-  // Processar as partes encontradas
   const basePath = year && dirName ? `/year/${year}/questions/${dirName}` : ""
   
   return (
@@ -180,8 +168,6 @@ function formatContext(context: string | undefined | null, files: string[], dirN
   )
 }
 
-// Escolher próxima não respondida
-// Helper: retornar próximo índice sequencial (current + 1) ou null se acabar
 function getNextIndexSequential(total: number, currentIdx: number | null): number | null {
   if (currentIdx === null) return total > 0 ? 0 : null
   const next = currentIdx + 1
@@ -193,12 +179,10 @@ export default function QuestionsPage() {
   const params = useParams()
   const subject = params?.subject as string
   
-  // Capturar parâmetro da língua da URL
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
   const hasLoadedRef = useRef(false)
 
 
-  // estados principais (sempre no topo)
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number | null>(null)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
@@ -209,43 +193,32 @@ export default function QuestionsPage() {
   const [subjectName, setSubjectName] = useState("")
   const [loading, setLoading] = useState(true)
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set())
-  // total time across the session
   const [totalTime, setTotalTime] = useState(0)
-  // per-question timer
   const [questionTime, setQuestionTime] = useState(0)
-  // ref para manter id do timer total (iniciado quando as questões são carregadas)
   const totalTimerId = useRef<number | null>(null)
-  // Cache de questões no lado do cliente
   const questionsCache = useRef<Map<string, Question[]>>(new Map())
   
-  // Estados para embaralhamento de alternativas
   const [shuffledAlternatives, setShuffledAlternatives] = useState<Alternative[]>([])
   const [alternativeMapping, setAlternativeMapping] = useState<Map<string, string>>(new Map())
   
-  // Função para embaralhar alternativas mantendo a ordem das letras A, B, C, D, E
   const shuffleAlternatives = (alternatives: Alternative[]) => {
-    // Verificar se alternatives existe e é um array
     if (!alternatives || !Array.isArray(alternatives)) {
       return { shuffled: [], mapping: new Map() }
     }
     
-    // Criar uma cópia das alternativas
     const shuffled = [...alternatives]
     
-    // Embaralhar apenas o conteúdo, mantendo as letras na ordem A, B, C, D, E
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     
-    // Reatribuir as letras na ordem correta A, B, C, D, E
     const letters = ['A', 'B', 'C', 'D', 'E']
     const reordered = shuffled.map((alt, index) => ({
       ...alt,
       letter: letters[index]
     }))
     
-    // Criar mapeamento: letra original -> letra na posição embaralhada
     const mapping = new Map<string, string>()
     alternatives.forEach((original, index) => {
       const shuffledIndex = shuffled.findIndex(alt => alt.letter === original.letter)
@@ -256,29 +229,25 @@ export default function QuestionsPage() {
     return { shuffled: reordered, mapping }
   }
   
-  // Estados para carregamento progressivo
-  const [totalQuestionsCount, setTotalQuestionsCount] = useState(0) // Total real de questões
-  const [loadedQuestionsCount, setLoadedQuestionsCount] = useState(0) // Quantas já foram carregadas
+  const [totalQuestionsCount, setTotalQuestionsCount] = useState(0)
+  const [loadedQuestionsCount, setLoadedQuestionsCount] = useState(0)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [allQuestionsLoaded, setAllQuestionsLoaded] = useState(false)
 
 
 
-  // Capturar parâmetro da língua da URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const lang = urlParams.get('lang')
     setSelectedLanguage(lang)
   }, [])
 
-  // per-question timer resets on question change
   useEffect(() => {
     setQuestionTime(0)
     const q = setInterval(() => setQuestionTime((s) => s + 1), 1000)
     return () => clearInterval(q)
   }, [currentQuestionIndex])
   
-  // Embaralhar alternativas quando a questão mudar
   useEffect(() => {
     if (currentQuestionIndex !== null && questions[currentQuestionIndex]) {
       const currentQuestion = questions[currentQuestionIndex]
@@ -289,7 +258,6 @@ export default function QuestionsPage() {
       }
     }
   }, [currentQuestionIndex, questions])
-  // garantimos limpar o timer total ao desmontar
   useEffect(() => {
     return () => {
       if (totalTimerId.current) {
@@ -299,7 +267,6 @@ export default function QuestionsPage() {
     }
   }, [])
 
-  // quando mostramos stats, parar o timer total
   useEffect(() => {
     if (showStats && totalTimerId.current) {
       clearInterval(totalTimerId.current)
@@ -307,7 +274,6 @@ export default function QuestionsPage() {
     }
   }, [showStats])
 
-  // Map para traduzir matérias
   const getSubjectName = (id: string) => {
     const subjectMap: { [key: string]: string } = {
       "ciencias-humanas": "Ciências Humanas",
@@ -329,16 +295,13 @@ export default function QuestionsPage() {
     return subjectMap[id] || id.charAt(0).toUpperCase() + id.slice(1)
   }
 
-  // Carregar questões
   useEffect(() => {
-    // Para linguagens, só carregar quando tiver a língua selecionada
     if (subject === "linguagens") {
       if (selectedLanguage && !hasLoadedRef.current) {
         loadQuestions(subject)
         hasLoadedRef.current = true
       }
     } else {
-      // Para outros subjects, carregar imediatamente se não foi carregado
       if (!hasLoadedRef.current) {
         loadQuestions(subject)
         hasLoadedRef.current = true
@@ -354,12 +317,10 @@ export default function QuestionsPage() {
         setIsLoadingMore(true)
       }
       
-      // Log apenas em desenvolvimento
       if (process.env.NODE_ENV === 'development') {
         console.log("Carregando questões para subject:", subjectToLoad, "offset:", offset, "limit:", limit)
       }
       
-      // Verificar cache primeiro
       const cacheKey = subjectToLoad === "linguagens" && selectedLanguage 
         ? `linguagens-${selectedLanguage}` 
         : subjectToLoad
@@ -381,10 +342,7 @@ export default function QuestionsPage() {
       let allData: Question[] = []
       let totalCount = 0
       
-      // Carregamento progressivo com paginação
       if (subjectToLoad === "linguagens" && selectedLanguage) {
-        // Para linguagens, carregar todas as questões de uma vez (sem paginação)
-        // pois a paginação individual por disciplina causa problemas
         const response = await fetch('/api/questions/batch-progressive', {
           method: 'POST',
           headers: {
@@ -393,8 +351,8 @@ export default function QuestionsPage() {
           },
           body: JSON.stringify({
             subjects: [selectedLanguage, 'portugues', 'literatura', 'artes'],
-            offset: 0, // Sempre carregar do início
-            limit: 10000 // Número grande para carregar todas
+            offset: 0,
+            limit: 10000
           })
         })
         
@@ -406,7 +364,6 @@ export default function QuestionsPage() {
         const literaturaData = batchData.literatura?.questions || []
         const artesData = batchData.artes?.questions || []
         
-        // Somar o total de todas as disciplinas de linguagens
         totalCount = (batchData[selectedLanguage]?.total || 0) + 
                     (batchData.portugues?.total || 0) + 
                     (batchData.literatura?.total || 0) + 
@@ -420,16 +377,12 @@ export default function QuestionsPage() {
           console.log("Total de questões:", totalCount)
         }
         
-        // Criar distribuição melhorada: duplicar questões de língua estrangeira para aparecerem mais
-        const languageDataDuplicated = [...languageData, ...languageData] // Duplicar para aparecer 2x mais
+        const languageDataDuplicated = [...languageData, ...languageData]
         
-        // Combinar todas as questões
         const allCombined = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
         
-        // Embaralhar todas as questões
         const shuffled = allCombined.sort(() => Math.random() - 0.5)
         
-        // Aplicar paginação manual aqui
         allData = shuffled.slice(offset, offset + limit)
         setSubjectName(`Linguagens (${getSubjectName(selectedLanguage)})`)
       } else if (subjectToLoad === "ciencias-humanas") {
@@ -454,7 +407,6 @@ export default function QuestionsPage() {
         const filosofiaData = batchData.filosofia?.questions || []
         const sociologiaData = batchData.sociologia?.questions || []
         
-        // Somar o total de todas as disciplinas de ciências humanas
         totalCount = (batchData.historia?.total || 0) + 
                     (batchData.geografia?.total || 0) + 
                     (batchData.filosofia?.total || 0) + 
@@ -491,7 +443,6 @@ export default function QuestionsPage() {
         const quimicaData = batchData.quimica?.questions || []
         const fisicaData = batchData.fisica?.questions || []
         
-        // Somar o total de todas as disciplinas de ciências da natureza
         totalCount = (batchData.biologia?.total || 0) + 
                     (batchData.quimica?.total || 0) + 
                     (batchData.fisica?.total || 0)
@@ -506,7 +457,6 @@ export default function QuestionsPage() {
         allData = [...biologiaData, ...quimicaData, ...fisicaData]
         setSubjectName("Ciências da Natureza")
       } else {
-        // Para outros subjects, usar API progressiva também
         const response = await fetch('/api/questions/batch-progressive', {
           method: 'POST',
           headers: {
@@ -539,31 +489,25 @@ export default function QuestionsPage() {
         console.log("Total de questões disponíveis:", totalCount)
       }
       
-      // Embaralhar apenas o lote atual
       const shuffled = allData.sort(() => Math.random() - 0.5)
       
       if (offset === 0) {
-        // Primeiro carregamento
         setQuestions(shuffled)
         setTotalQuestionsCount(totalCount)
         setLoadedQuestionsCount(shuffled.length)
         setAllQuestionsLoaded(shuffled.length >= totalCount)
         setCurrentQuestionIndex(shuffled.length > 0 ? 0 : null)
         
-        // Armazenar no cache
         questionsCache.current.set(cacheKey, shuffled)
         if (process.env.NODE_ENV === 'development') {
           console.log("Questões armazenadas no cache para:", cacheKey)
         }
       } else {
-        // Carregamento adicional - adicionar às questões existentes
         setQuestions(prev => [...prev, ...shuffled])
         setLoadedQuestionsCount(prev => prev + shuffled.length)
         setAllQuestionsLoaded(loadedQuestionsCount + shuffled.length >= totalCount)
       }
-      // iniciar timer total a partir do momento em que as questões estiverem prontas
       if (shuffled.length > 0 && offset === 0) {
-        // limpar caso já exista (segurança)
         if (totalTimerId.current) {
           clearInterval(totalTimerId.current)
         }
@@ -583,27 +527,23 @@ export default function QuestionsPage() {
 
   const currentQuestion = currentQuestionIndex !== null ? questions[currentQuestionIndex] : undefined
 
-  // Função para carregar mais questões quando necessário
   const loadMoreQuestions = async () => {
     if (isLoadingMore || allQuestionsLoaded) return
     
-    // Para linguagens, não precisamos de carregamento adicional pois carregamos tudo de uma vez
     if (subject === "linguagens") return
     
     const remainingQuestions = questions.length - (currentQuestionIndex || 0)
-    if (remainingQuestions <= 5) { // Carregar mais quando restam 5 ou menos questões
+    if (remainingQuestions <= 5) {
       await loadQuestions(subject, loadedQuestionsCount, 20)
     }
   }
 
-  // Verificar se precisa carregar mais questões
   useEffect(() => {
     if (currentQuestionIndex !== null && !allQuestionsLoaded) {
       loadMoreQuestions()
     }
   }, [currentQuestionIndex, allQuestionsLoaded, isLoadingMore])
 
-  // Função para mapear letra embaralhada de volta para a original
   const getOriginalLetter = (shuffledLetter: string) => {
     for (const [original, shuffled] of alternativeMapping.entries()) {
       if (shuffled === shuffledLetter) {
@@ -613,7 +553,6 @@ export default function QuestionsPage() {
     return shuffledLetter // fallback
   }
   
-  // Função para encontrar a letra correta na posição embaralhada
   const getCorrectShuffledLetter = () => {
     if (!currentQuestion) return null
     for (const [original, shuffled] of alternativeMapping.entries()) {
@@ -624,13 +563,11 @@ export default function QuestionsPage() {
     return currentQuestion.correctAlternative // fallback
   }
 
-  // Handlers
   const handleSelectAnswer = (letter: string) => !isAnswered && setSelectedAnswer(letter)
 
   const handleConfirmAnswer = () => {
     if (selectedAnswer && currentQuestion) {
       setIsAnswered(true)
-      // Mapear a resposta selecionada (letra embaralhada) para a letra original
       const originalLetter = getOriginalLetter(selectedAnswer)
       const isCorrect = originalLetter === currentQuestion.correctAlternative
       setStats((prev) => ({
@@ -644,7 +581,6 @@ export default function QuestionsPage() {
     }
   }
 
-  // Avança para o próximo índice sequencialmente dentro do array (embaralhado)
   const goToNextInOrder = () => {
     const nextIdx = getNextIndexSequential(questions.length, currentQuestionIndex)
     if (nextIdx !== null) {
@@ -685,7 +621,6 @@ export default function QuestionsPage() {
 
 
 
-  // Loading
   if (loading || (subject === "linguagens" && !selectedLanguage)) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">
@@ -706,7 +641,6 @@ export default function QuestionsPage() {
     )
   }
 
-  // Nenhuma questão
   if (!questions.length || currentQuestionIndex === null || !currentQuestion) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -734,7 +668,6 @@ export default function QuestionsPage() {
     )
   }
 
-  // Resultado (tela de resultados com visual melhorado)
   if (showStats) {
     const totalQuestions = stats.total
     const correctAnswers = stats.correct
@@ -838,7 +771,6 @@ export default function QuestionsPage() {
                     </div>
                   </div>
 
-                  {/* Tempo total e tempo médio por questão */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6">
                     <div className="text-center p-4 bg-blue-500/10 rounded-xl">
                       <div className="text-3xl font-bold text-blue-400 mb-1">
@@ -882,7 +814,6 @@ export default function QuestionsPage() {
     )
   }
 
-  // Questão
   const totalRespondidas =
     answeredQuestions.size +
     (isAnswered && currentQuestionIndex !== null && !answeredQuestions.has(currentQuestionIndex) ? 1 : 0)
@@ -1163,7 +1094,6 @@ export default function QuestionsPage() {
                   </Button>
                 )}
               </div>
-              {/* Botão de explicação para mobile */}
               {isAnswered && selectedAnswer !== getCorrectShuffledLetter() && (
                 <div className="w-full sm:hidden">
                   <ExplanationButton 

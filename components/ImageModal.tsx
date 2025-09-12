@@ -21,12 +21,10 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
   const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 })
   const [mounted, setMounted] = useState(false)
 
-  // Controlar se o componente está montado (para SSR)
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Reset quando modal abre/fecha
   useEffect(() => {
     if (isOpen) {
       setScale(1)
@@ -35,7 +33,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
     }
   }, [isOpen])
 
-  // Fechar com ESC e zoom com wheel
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -48,7 +45,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
         e.preventDefault()
         e.stopPropagation()
         
-        // Calcular delta baseado na direção do scroll
         const delta = e.deltaY > 0 ? -0.2 : 0.2
         const newScale = Math.max(0.5, Math.min(3, scale + delta))
         
@@ -59,7 +55,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown)
       document.addEventListener("wheel", handleWheel, { passive: false })
-      // Prevenir scroll do body
       document.body.style.overflow = "hidden"
     }
 
@@ -72,7 +67,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
 
 
 
-  // Drag para mover a imagem
   const handleMouseDown = (e: React.MouseEvent) => {
     if (scale > 1) {
       setIsDragging(true)
@@ -82,7 +76,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging && scale > 1) {
-      // Reduzir sensibilidade do arrastar
       const sensitivity = 0.7
       const newX = (e.clientX - dragStart.x) * sensitivity
       const newY = (e.clientY - dragStart.y) * sensitivity
@@ -97,7 +90,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
     }
   }
 
-  // Touch events para mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1 && scale > 1) {
       const touch = e.touches[0]
@@ -110,7 +102,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
     if (isDragging && e.touches.length === 1 && scale > 1) {
       e.preventDefault()
       const touch = e.touches[0]
-      // Reduzir sensibilidade do arrastar no touch também
       const sensitivity = 0.7
       const newX = (touch.clientX - dragStart.x) * sensitivity
       const newY = (touch.clientY - dragStart.y) * sensitivity
@@ -125,7 +116,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
     }
   }
 
-  // Pinch to zoom para mobile
   const handleTouchStartPinch = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       e.preventDefault()
@@ -142,8 +132,7 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
         Math.pow(touch2.clientY - touch1.clientY, 2)
       )
       
-      // Calcular zoom baseado na distância entre os dedos
-      const initialDistance = 100 // Distância inicial de referência
+      const initialDistance = 100
       const newScale = Math.max(0.5, Math.min(3, distance / initialDistance))
       setScale(newScale)
     }
@@ -175,7 +164,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
           }
         }}
       >
-        {/* Botão de fechar */}
         <Button
           variant="ghost"
           size="icon"
@@ -189,7 +177,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
         </Button>
 
 
-        {/* Imagem */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -232,7 +219,6 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
           />
         </motion.div>
 
-        {/* Instruções */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-sm text-center">
           <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 mb-3">
             <p className="hidden sm:block text-white font-medium">

@@ -91,7 +91,6 @@ export default function Home() {
   const [isLinguagensArea, setIsLinguagensArea] = useState(false)
 
   const handleStartStudies = (areaKey: string) => {
-    // Para linguagens e língua estrangeira, mostrar seletor de língua
     if (areaKey === "linguagens" || areaKey === "lingua-estrangeira") {
       setIsLinguagensArea(areaKey === "linguagens")
       setShowLanguageModal(true)
@@ -214,17 +213,13 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {subjects
                 .filter(subject => {
-                  // Se nenhuma linguagem foi selecionada, mostrar todas as matérias
                   if (!selectedLanguage || selectedLanguage === "all") return true;
                   
-                  // Se foi selecionada uma linguagem, mostrar apenas as 3 disciplinas de linguagens
                   if (selectedLanguage === "ingles") {
-                    // Mostrar português, literatura e inglês
                     return subject.key === "portugues" || subject.key === "literatura" || subject.key === "ingles";
                   }
                   
                   if (selectedLanguage === "espanhol") {
-                    // Mostrar português, literatura e espanhol
                     return subject.key === "portugues" || subject.key === "literatura" || subject.key === "espanhol";
                   }
                   

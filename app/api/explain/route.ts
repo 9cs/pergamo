@@ -30,7 +30,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Questão ou resposta do usuário não fornecida" }, { status: 400 })
     }
 
-    // Verificar se a API key está configurada
     const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
       console.error("GROQ_API_KEY não configurada no Vercel")
@@ -39,7 +38,6 @@ export async function POST(request: Request) {
       }, { status: 500 })
     }
 
-    // Encontrar as alternativas correta e incorreta
     const correctAlternative = question.alternatives.find(alt => alt.isCorrect)
     const userAlternative = question.alternatives.find(alt => alt.letter === userAnswer)
 
@@ -47,7 +45,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Alternativas não encontradas" }, { status: 400 })
     }
 
-    // Construir informações sobre assets/imagens
     const buildAssetInfo = (files: string[], prefix: string) => {
       if (!files || files.length === 0) return ""
       return `\n${prefix} IMAGENS:\n${files.map(file => `- ${file}`).join('\n')}`
@@ -58,10 +55,8 @@ export async function POST(request: Request) {
       return `\n${prefix} IMAGEM: ${alternative.file}`
     }
 
-    // Verificar se as alternativas são baseadas em imagens
     const hasImageAlternatives = question.alternatives.some(alt => alt.text === null && alt.file !== null)
     
-    // Construir descrição das alternativas para questões baseadas em imagens
     const buildImageAlternativesDescription = () => {
       if (!hasImageAlternatives) return ""
       
@@ -101,7 +96,6 @@ INSTRUÇÕES:
 
 EXPLICAÇÃO:`
 
-    // Fazer a requisição para o Groq API com streaming
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -131,7 +125,6 @@ EXPLICAÇÃO:`
       const errorText = await response.text()
       console.error('Erro na API do Groq:', response.status, response.statusText, errorText)
       
-      // Detectar rate limit
       if (response.status === 429) {
         return NextResponse.json({ 
           error: "RATE_LIMIT",
@@ -144,7 +137,6 @@ EXPLICAÇÃO:`
       }, { status: 500 })
     }
 
-    // Configurar streaming response
     const stream = new ReadableStream({
       start(controller) {
         const reader = response.body?.getReader()
@@ -175,7 +167,6 @@ EXPLICAÇÃO:`
                     controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`))
                   }
                 } catch (e) {
-                  // Ignorar linhas inválidas
                 }
               }
             }

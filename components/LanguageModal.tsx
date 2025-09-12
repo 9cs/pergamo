@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 interface LanguageModalProps {
   isOpen: boolean
   onClose: () => void
-  isLinguagensArea?: boolean // true para área Linguagens, false para matéria Língua Estrangeira
+  isLinguagensArea?: boolean
 }
 
 export default function LanguageModal({ isOpen, onClose, isLinguagensArea = false }: LanguageModalProps) {
@@ -16,7 +16,6 @@ export default function LanguageModal({ isOpen, onClose, isLinguagensArea = fals
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          {/* Backdrop com blur animado */}
           <motion.div
             initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
             animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
@@ -26,7 +25,6 @@ export default function LanguageModal({ isOpen, onClose, isLinguagensArea = fals
             onClick={onClose}
           />
 
-          {/* Modal content animado */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

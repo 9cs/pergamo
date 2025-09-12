@@ -8,7 +8,6 @@ import Link from "next/link"
 export default function NotFound() {
   return (
     <div className="min-h-screen hero-gradient flex items-center justify-center">
-      {/* Gradiente ocupando tela inteira */}
       <div className="absolute inset-0 bg-black/40"></div>
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center text-center space-y-6 min-h-screen">
@@ -39,7 +38,6 @@ export default function NotFound() {
             </p>
           </motion.div>
 
-          {/* Botão para voltar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
