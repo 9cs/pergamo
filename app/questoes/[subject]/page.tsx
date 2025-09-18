@@ -335,27 +335,54 @@ export default function QuestionsPage() {
         ? `linguagens-${selectedLanguage}` 
         : subjectToLoad
 
-      if (questionsCache.current.has(cacheKey)) {
-        const cachedFull = questionsCache.current.get(cacheKey)!
-        const totalCount = cachedFull.length
-        const sliced = cachedFull.slice(offset, offset + limit)
-
-        if (offset === 0) {
-          setQuestions(sliced)
-          setTotalQuestionsCount(totalCount)
-          setLoadedQuestionsCount(sliced.length)
-          setAllQuestionsLoaded(sliced.length >= totalCount)
-          setCurrentQuestionIndex(sliced.length > 0 ? 0 : null)
-        } else {
-          setQuestions(prev => [...prev, ...sliced])
-          setLoadedQuestionsCount(prev => prev + sliced.length)
-          setAllQuestionsLoaded(loadedQuestionsCount + sliced.length >= totalCount)
+        if (questionsCache.current.has(cacheKey)) {
+          const cachedFull = questionsCache.current.get(cacheKey)!
+          const totalCount = cachedFull.length
+        
+          const groupedByYear: Record<number, Question[]> = {}
+          cachedFull.forEach((q) => {
+            if (!groupedByYear[q.year]) groupedByYear[q.year] = []
+            groupedByYear[q.year].push(q)
+          })
+        
+          function getBalancedSlice(size: number) {
+            const years = Object.keys(groupedByYear).map(Number)
+            const result: Question[] = []
+            const pool = [...years]
+        
+            while (result.length < size && pool.length > 0) {
+              const year = pool[Math.floor(Math.random() * pool.length)]
+              const list = groupedByYear[year]
+        
+              if (list.length > 0) {
+                const idx = Math.floor(Math.random() * list.length)
+                result.push(list.splice(idx, 1)[0])
+              } else {
+                pool.splice(pool.indexOf(year), 1)
+              }
+            }
+        
+            return result
+          }
+        
+          const sliced = getBalancedSlice(limit)
+        
+          if (offset === 0) {
+            setQuestions(sliced)
+            setTotalQuestionsCount(totalCount)
+            setLoadedQuestionsCount(sliced.length)
+            setAllQuestionsLoaded(sliced.length >= totalCount)
+            setCurrentQuestionIndex(sliced.length > 0 ? 0 : null)
+          } else {
+            setQuestions(prev => [...prev, ...sliced])
+            setLoadedQuestionsCount(prev => prev + sliced.length)
+            setAllQuestionsLoaded(loadedQuestionsCount + sliced.length >= totalCount)
+          }
+        
+          setLoading(false)
+          setIsLoadingMore(false)
+          return
         }
-
-        setLoading(false)
-        setIsLoadingMore(false)
-        return
-      }
 
       let allData: Question[] = []
       let totalCount = 0
@@ -399,8 +426,8 @@ export default function QuestionsPage() {
           },
           body: JSON.stringify({
             subjects: ['historia', 'geografia', 'filosofia', 'sociologia'],
-            offset,
-            limit
+            offset: 0,
+            limit: 3000
           })
         })
 
@@ -428,8 +455,8 @@ export default function QuestionsPage() {
           },
           body: JSON.stringify({
             subjects: ['biologia', 'quimica', 'fisica'],
-            offset,
-            limit
+            offset: 0,
+            limit: 3000
           })
         })
 
