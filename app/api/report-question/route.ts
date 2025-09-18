@@ -8,6 +8,17 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 })
 
+const yellowTones = [
+  "#FFF9C4", "#FFF59D", "#FFF176", "#FFEE58", "#FFEB3B",
+  "#FDD835", "#FBC02D", "#F9A825", "#F57F17", "#FFC107",
+  "#FFB300", "#FFA000", "#FF8F00", "#FF6F00", "#FFD600"
+];
+
+function getRandomYellow(): string {
+  const index = Math.floor(Math.random() * yellowTones.length);
+  return yellowTones[index];
+}
+
 function capitalizeFirstLetter(str: string) {
   if (!str) return str
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -18,7 +29,11 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(2, "1 m"),
 })
 
-const REPORTS_KEY_TTL_SECONDS = 90 * 24 * 60 * 60 // 90 dias
+const REPORTS_KEY_TTL_SECONDS = 7 * 24 * 60 * 60
+
+function hexToDecimal(hex: string): number {
+  return parseInt(hex.replace("#", ""), 16);
+}
 
 export async function POST(req: Request) {
   try {
@@ -37,13 +52,24 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { questionId, subject, year, reason } = body
+    const { questionId, subject, year, index, reason } = body
     if (!questionId || !reason) {
       return NextResponse.json({ error: "Payload inválido" }, { status: 400 })
     }
 
     const userIdentifier = ip
-    const key = `reported:${questionId}`
+    const key = `reported:${year}-${subject}-${index}`
+
+    const alreadyReported = await redis.sismember(key, userIdentifier)
+    if (alreadyReported) {
+      return NextResponse.json({ success: true, alreadyReported: true })
+    }
+    await redis.sadd(key, userIdentifier)
+
+    const ttl = await redis.ttl(key)
+    if (ttl === -1) {
+      await redis.expire(key, REPORTS_KEY_TTL_SECONDS)
+    }
 
     let country = "Desconhecido"
     let countryCode = "BR"
@@ -61,12 +87,6 @@ export async function POST(req: Request) {
       }
     }
 
-    const added = await redis.sadd(key, userIdentifier)
-    if (added === 0) {
-      return NextResponse.json({ success: true, alreadyReported: true })
-    }
-    await redis.expire(key, REPORTS_KEY_TTL_SECONDS)
-
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL
     if (!webhookUrl) {
       return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 })
@@ -77,6 +97,8 @@ export async function POST(req: Request) {
         ? `https://flagcdn.com/16x12/${countryCode.toLowerCase()}.png`
         : "https://i.imgur.com/placeholder.png"
 
+    const warningColor = hexToDecimal(getRandomYellow());
+        
     const payload = {
       username: "Pergamo | ReportBot |",
       avatar_url:
@@ -84,13 +106,13 @@ export async function POST(req: Request) {
       embeds: [
         {
           title: "🚨 Questão reportada!",
-          color: 16753920,
+          color: warningColor,
           thumbnail: {
             url: "https://cdn.discordapp.com/attachments/1113994866330980442/1418094240428462131/dark.png",
           },
           fields: [
             { name: "Ano", value: String(year), inline: true },
-            { name: "Número", value: questionId, inline: true },
+            { name: "Número", value: index, inline: true },
             { name: "Matéria", value: capitalizeFirstLetter(subject) },
             { name: "Problema", value: reason },
           ],

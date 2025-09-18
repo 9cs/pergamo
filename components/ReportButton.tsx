@@ -16,39 +16,54 @@ interface ReportButtonProps {
   questionId: string
   subject?: string
   year?: number
+  index?: number
 }
 
+const EXPIRATION_DAYS = 7
 const STORAGE_KEY = "reported_questions"
 
-function hasReportedInLocal(questionId: string) {
+// Recupera todos os reports salvos no localStorage
+function getStoredReports(): Record<string, number> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return false
-    const arr: string[] = JSON.parse(raw)
-    return arr.includes(questionId)
+    if (!raw) return {}
+    return JSON.parse(raw) as Record<string, number>
   } catch {
+    return {}
+  }
+}
+
+// Verifica se uma questão já foi reportada e ainda não expirou
+function hasReportedInLocal(uniqueId: string): boolean {
+  const reports = getStoredReports()
+  const expiry = reports[uniqueId]
+  if (!expiry) return false
+  if (Date.now() > expiry) {
+    // expirou → limpa
+    const updated = { ...reports }
+    delete updated[uniqueId]
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
     return false
   }
+  return true
 }
 
-function addReportedInLocal(questionId: string) {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    const arr: string[] = raw ? JSON.parse(raw) : []
-    if (!arr.includes(questionId)) {
-      arr.push(questionId)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr))
-    }
-  } catch {
-    // ignore
-  }
+// Adiciona uma questão como reportada com data de expiração
+function addReportedInLocal(uniqueId: string) {
+  const reports = getStoredReports()
+  const expiry = Date.now() + EXPIRATION_DAYS * 24 * 60 * 60 * 1000
+  reports[uniqueId] = expiry
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(reports))
 }
 
-export default function ReportButton({ questionId, subject, year }: ReportButtonProps) {
+export default function ReportButton({ questionId, subject, year, index }: ReportButtonProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [alreadyReported, setAlreadyReported] = useState(false)
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
+
+  // Chave única: {ano}-{materia}-{index}
+  const uniqueId = `${year || "unk"}-${subject || "unk"}-${index || questionId}`
 
   const reasons = [
     "Matéria incorreta",
@@ -60,9 +75,9 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setAlreadyReported(hasReportedInLocal(questionId))
+      setAlreadyReported(hasReportedInLocal(uniqueId))
     }
-  }, [questionId])
+  }, [uniqueId])
 
   const handleReport = async (reason: string) => {
     if (alreadyReported) {
@@ -80,6 +95,7 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
           questionId,
           subject,
           year,
+          index,
           reason,
         }),
       })
@@ -96,14 +112,14 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
       }
 
       if (data?.alreadyReported) {
-        addReportedInLocal(questionId)
+        addReportedInLocal(uniqueId)
         setAlreadyReported(true)
         toast.success("Questão já tinha sido reportada — obrigado!")
         setOpen(false)
         return
       }
 
-      addReportedInLocal(questionId)
+      addReportedInLocal(uniqueId)
       setAlreadyReported(true)
       toast.success("Report enviado com sucesso! Obrigado 🙏")
       setOpen(false)
@@ -121,9 +137,10 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
         className={`
           bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full
           transition-transform duration-200 ease-out
-          ${alreadyReported 
-            ? "opacity-50 pointer-events-none hover:scale-100 hover:bg-yellow-500/20 cursor-not-allowed"
-            : "hover:scale-105 hover:bg-yellow-500/25"
+          ${
+            alreadyReported
+              ? "opacity-50 pointer-events-none hover:scale-100 hover:bg-yellow-500/20 cursor-not-allowed"
+              : "hover:scale-105 hover:bg-yellow-500/25"
           }
         `}
         onClick={() => {
@@ -176,7 +193,7 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
               disabled={loading || !selectedReason}
               className="w-full sm:w-auto bg-white hover:bg-white text-neutral-900 border-0 shadow-lg transition-transform duration-200 ease-out hover:scale-105"
             >
-              Enviar Report
+              Enviar
             </Button>
           </DialogFooter>
         </DialogContent>

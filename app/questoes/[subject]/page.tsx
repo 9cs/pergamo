@@ -111,7 +111,7 @@ function shuffleArray<T>(arr: T[]) {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
+      ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
 }
@@ -332,58 +332,58 @@ export default function QuestionsPage() {
         console.log("Carregando questões para subject:", subjectToLoad, "offset:", offset, "limit:", limit)
       }
 
-      const cacheKey = subjectToLoad === "linguagens" && selectedLanguage 
-        ? `linguagens-${selectedLanguage}` 
+      const cacheKey = subjectToLoad === "linguagens" && selectedLanguage
+        ? `linguagens-${selectedLanguage}`
         : subjectToLoad
 
-        if (questionsCache.current.has(cacheKey)) {
-          const cachedFull = questionsCache.current.get(cacheKey)!
-          const totalCount = cachedFull.length
-        
-          const groupedByYear: Record<number, Question[]> = {}
-          cachedFull.forEach((q) => {
-            if (!groupedByYear[q.year]) groupedByYear[q.year] = []
-            groupedByYear[q.year].push(q)
-          })
-        
-          function getBalancedSlice(size: number) {
-            const years = Object.keys(groupedByYear).map(Number)
-            const result: Question[] = []
-            const pool = [...years]
-        
-            while (result.length < size && pool.length > 0) {
-              const year = pool[Math.floor(Math.random() * pool.length)]
-              const list = groupedByYear[year]
-        
-              if (list.length > 0) {
-                const idx = Math.floor(Math.random() * list.length)
-                result.push(list.splice(idx, 1)[0])
-              } else {
-                pool.splice(pool.indexOf(year), 1)
-              }
+      if (questionsCache.current.has(cacheKey)) {
+        const cachedFull = questionsCache.current.get(cacheKey)!
+        const totalCount = cachedFull.length
+
+        const groupedByYear: Record<number, Question[]> = {}
+        cachedFull.forEach((q) => {
+          if (!groupedByYear[q.year]) groupedByYear[q.year] = []
+          groupedByYear[q.year].push(q)
+        })
+
+        function getBalancedSlice(size: number) {
+          const years = Object.keys(groupedByYear).map(Number)
+          const result: Question[] = []
+          const pool = [...years]
+
+          while (result.length < size && pool.length > 0) {
+            const year = pool[Math.floor(Math.random() * pool.length)]
+            const list = groupedByYear[year]
+
+            if (list.length > 0) {
+              const idx = Math.floor(Math.random() * list.length)
+              result.push(list.splice(idx, 1)[0])
+            } else {
+              pool.splice(pool.indexOf(year), 1)
             }
-        
-            return result
           }
-        
-          const sliced = getBalancedSlice(limit)
-        
-          if (offset === 0) {
-            setQuestions(sliced)
-            setTotalQuestionsCount(totalCount)
-            setLoadedQuestionsCount(sliced.length)
-            setAllQuestionsLoaded(sliced.length >= totalCount)
-            setCurrentQuestionIndex(sliced.length > 0 ? 0 : null)
-          } else {
-            setQuestions(prev => [...prev, ...sliced])
-            setLoadedQuestionsCount(prev => prev + sliced.length)
-            setAllQuestionsLoaded(loadedQuestionsCount + sliced.length >= totalCount)
-          }
-        
-          setLoading(false)
-          setIsLoadingMore(false)
-          return
+
+          return result
         }
+
+        const sliced = getBalancedSlice(limit)
+
+        if (offset === 0) {
+          setQuestions(sliced)
+          setTotalQuestionsCount(totalCount)
+          setLoadedQuestionsCount(sliced.length)
+          setAllQuestionsLoaded(sliced.length >= totalCount)
+          setCurrentQuestionIndex(sliced.length > 0 ? 0 : null)
+        } else {
+          setQuestions(prev => [...prev, ...sliced])
+          setLoadedQuestionsCount(prev => prev + sliced.length)
+          setAllQuestionsLoaded(loadedQuestionsCount + sliced.length >= totalCount)
+        }
+
+        setLoading(false)
+        setIsLoadingMore(false)
+        return
+      }
 
       let allData: Question[] = []
       let totalCount = 0
@@ -410,10 +410,10 @@ export default function QuestionsPage() {
         const literaturaData = batchData.literatura?.questions || []
         const artesData = batchData.artes?.questions || []
 
-        totalCount = (batchData[selectedLanguage]?.total || 0) + 
-                    (batchData.portugues?.total || 0) + 
-                    (batchData.literatura?.total || 0) + 
-                    (batchData.artes?.total || 0)
+        totalCount = (batchData[selectedLanguage]?.total || 0) +
+          (batchData.portugues?.total || 0) +
+          (batchData.literatura?.total || 0) +
+          (batchData.artes?.total || 0)
 
         const languageDataDuplicated = [...languageData, ...languageData]
         allData = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
@@ -440,10 +440,10 @@ export default function QuestionsPage() {
         const filosofiaData = batchData.filosofia?.questions || []
         const sociologiaData = batchData.sociologia?.questions || []
 
-        totalCount = (batchData.historia?.total || 0) + 
-                    (batchData.geografia?.total || 0) + 
-                    (batchData.filosofia?.total || 0) + 
-                    (batchData.sociologia?.total || 0)
+        totalCount = (batchData.historia?.total || 0) +
+          (batchData.geografia?.total || 0) +
+          (batchData.filosofia?.total || 0) +
+          (batchData.sociologia?.total || 0)
 
         allData = [...historiaData, ...geografiaData, ...filosofiaData, ...sociologiaData]
         setSubjectName("Ciências Humanas")
@@ -468,9 +468,9 @@ export default function QuestionsPage() {
         const quimicaData = batchData.quimica?.questions || []
         const fisicaData = batchData.fisica?.questions || []
 
-        totalCount = (batchData.biologia?.total || 0) + 
-                    (batchData.quimica?.total || 0) + 
-                    (batchData.fisica?.total || 0)
+        totalCount = (batchData.biologia?.total || 0) +
+          (batchData.quimica?.total || 0) +
+          (batchData.fisica?.total || 0)
 
         allData = [...biologiaData, ...quimicaData, ...fisicaData]
         setSubjectName("Ciências da Natureza")
@@ -561,9 +561,9 @@ export default function QuestionsPage() {
         return original
       }
     }
-    return shuffledLetter 
+    return shuffledLetter
   }
-  
+
   const getCorrectShuffledLetter = () => {
     if (!currentQuestion) return null
     for (const [original, shuffled] of alternativeMapping.entries()) {
@@ -571,7 +571,7 @@ export default function QuestionsPage() {
         return shuffled
       }
     }
-    return currentQuestion.correctAlternative 
+    return currentQuestion.correctAlternative
   }
 
   const handleSelectAnswer = (letter: string) => !isAnswered && setSelectedAnswer(letter)
@@ -737,7 +737,7 @@ export default function QuestionsPage() {
                   <CardTitle className="text-3xl font-bold text-white mb-2">Resultado Final</CardTitle>
                   <p className="text-slate-300">Seu desempenho em</p>
                   <div className="flex justify-center mt-3">
-                    <Badge className="bg-white/20 text-white border-0 px-4 py-1 inline-block">
+                    <Badge className="bg-blue-500/20 text-blue-300 border-0 px-4 py-1 inline-block">
                       {getSubjectName(subject)}
                     </Badge>
                   </div>
@@ -791,8 +791,8 @@ export default function QuestionsPage() {
                     </div>
                     <div className="text-center p-4 bg-purple-500/10 rounded-xl">
                       <div className="text-3xl font-bold text-purple-400 mb-1">
-                        {totalQuestions > 0 
-                          ? `${Math.floor((totalTime / totalQuestions) / 60)}:${Math.floor((totalTime / totalQuestions) % 60).toString().padStart(2, "0")}` 
+                        {totalQuestions > 0
+                          ? `${Math.floor((totalTime / totalQuestions) / 60)}:${Math.floor((totalTime / totalQuestions) % 60).toString().padStart(2, "0")}`
                           : "0:00"}
                       </div>
                       <div className="text-sm text-slate-300">Tempo médio por questão</div>
@@ -851,8 +851,8 @@ export default function QuestionsPage() {
               <div>
                 <h1 className="text-xl font-bold text-white">Pergamo</h1>
                 <p className="text-sm text-slate-300 hidden sm:block">
-                  {subject === "linguagens" && selectedLanguage 
-                    ? `Linguagens (${getSubjectName(selectedLanguage)})` 
+                  {subject === "linguagens" && selectedLanguage
+                    ? `Linguagens (${getSubjectName(selectedLanguage)})`
                     : getSubjectName(subject)}
                 </p>
               </div>
@@ -941,23 +941,24 @@ export default function QuestionsPage() {
 
             <CardHeader className="pb-2.5 relative">
               <div className="flex flex-wrap items-center gap-3 mb-4">
-              <Badge className="h-10 inline-flex rounded-md rounded-full bg-neutral-100 text-neutral-900">
-                {currentQuestion?.discipline 
-                  ? getSubjectName(currentQuestion.discipline) 
-                  : getSubjectName(subject)}
-              </Badge>
+                <Badge className="h-10 inline-flex rounded-md rounded-full bg-blue-500/20 text-blue-300">
+                  {currentQuestion?.discipline
+                    ? getSubjectName(currentQuestion.discipline)
+                    : getSubjectName(subject)}
+                </Badge>
                 <ReportButton
-                  questionId={currentQuestion.index.toString()}
+                  questionId={`${currentQuestion.year}-${currentQuestion.discipline || currentQuestion.area}-${currentQuestion.index}`}
                   subject={currentQuestion.discipline || currentQuestion.area}
                   year={currentQuestion.year}
+                  index={currentQuestion.index}
                 />
-                
+
                 <div className="ml-auto">
-                <span className="bg-white/5 px-2 py-1 rounded-full flex items-center gap-1 text-sm text-slate-300">
-                  <Clock className="h-4 w-4 text-purple-400" />
-                  {Math.floor(questionTime / 60)}:{(questionTime % 60).toString().padStart(2, "0")}
-                </span>
-              </div>
+                  <span className="bg-white/5 px-2 py-1 rounded-full flex items-center gap-1 text-sm text-slate-300">
+                    <Clock className="h-4 w-4 text-purple-400" />
+                    {Math.floor(questionTime / 60)}:{(questionTime % 60).toString().padStart(2, "0")}
+                  </span>
+                </div>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">{currentQuestion.title}</h2>
             </CardHeader>
@@ -981,7 +982,7 @@ export default function QuestionsPage() {
               <div className="space-y-3">
                 {shuffledAlternatives.map((alt) => {
                   const isSelected = selectedAnswer === alt.letter
-                  
+
                   const correctShuffledLetter = getCorrectShuffledLetter()
                   const isCorrectAlt = alt.letter === correctShuffledLetter
 
@@ -990,13 +991,13 @@ export default function QuestionsPage() {
                     !isAnswered && "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30",
                     isSelected && !isAnswered && "border-blue-400 bg-blue-500/20 shadow-lg shadow-blue-500/25",
                     isAnswered &&
-                      isCorrectAlt &&
-                      "border-emerald-400 bg-emerald-500/20 shadow-lg shadow-emerald-500/25",
+                    isCorrectAlt &&
+                    "border-emerald-400 bg-emerald-500/20 shadow-lg shadow-emerald-500/25",
                     isAnswered && !isSelected && !isCorrectAlt && "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30",
                     isAnswered &&
-                      isSelected &&
-                      !isCorrectAlt &&
-                      "border-red-400 bg-red-500/20 shadow-lg shadow-red-500/25",
+                    isSelected &&
+                    !isCorrectAlt &&
+                    "border-red-400 bg-red-500/20 shadow-lg shadow-red-500/25",
                   )
 
                   return (
@@ -1013,7 +1014,7 @@ export default function QuestionsPage() {
                           className={cn(
                             "flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-colors",
                             !isAnswered &&
-                              "border-white/40 text-white/70 group-hover:border-white/60 group-hover:text-white",
+                            "border-white/40 text-white/70 group-hover:border-white/60 group-hover:text-white",
                             isSelected && !isAnswered && "border-blue-400 text-blue-400 bg-blue-500/20",
                             isAnswered && !isSelected && !isCorrectAlt && "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30",
                             isAnswered && isCorrectAlt && "border-emerald-400 text-emerald-400 bg-emerald-500/20",
@@ -1087,8 +1088,8 @@ export default function QuestionsPage() {
                     </div>
                     {selectedAnswer !== getCorrectShuffledLetter() && (
                       <div className="ml-4 hidden sm:block">
-                        <ExplanationButton 
-                          question={currentQuestion} 
+                        <ExplanationButton
+                          question={currentQuestion}
                           isAnswered={isAnswered}
                           userAnswer={selectedAnswer}
                           shuffledAlternatives={shuffledAlternatives}
@@ -1137,8 +1138,8 @@ export default function QuestionsPage() {
               </div>
               {isAnswered && selectedAnswer !== getCorrectShuffledLetter() && (
                 <div className="w-full sm:hidden">
-                  <ExplanationButton 
-                    question={currentQuestion} 
+                  <ExplanationButton
+                    question={currentQuestion}
                     isAnswered={isAnswered}
                     userAnswer={selectedAnswer}
                     shuffledAlternatives={shuffledAlternatives}
