@@ -19,16 +19,16 @@ export async function GET(
     const baseDir = path.join(process.cwd(), "public")
     const allQuestions = readQuestionsRecursively(baseDir)
 
-    // Filtro simplificado: disciplina ou área
+    
     const filteredQuestions = allQuestions.filter((q) => {
       if (q.year !== Number(year)) return false
 
-      // se usuário pedir uma área inteira
+      
       if (["ciencias-humanas", "ciencias-natureza", "linguagens", "matematica"].includes(subject)) {
         return q.area === subject
       }
 
-      // caso normal: disciplina exata
+      
       return q.discipline === subject
     })
 

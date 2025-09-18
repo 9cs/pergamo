@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import fs from "fs"
 import path from "path"
 
-// Interface para a estrutura das questões
+
 interface Alternative {
   letter: string
   text: string
@@ -25,7 +25,7 @@ interface Question {
   dirName?: string
 }
 
-// Função para ler recursivamente todos os arquivos details.json
+
 function readQuestionsRecursively(dir: string, questions: Question[] = []): Question[] {
   const files = fs.readdirSync(dir)
 
@@ -34,14 +34,14 @@ function readQuestionsRecursively(dir: string, questions: Question[] = []): Ques
     const stat = fs.statSync(filePath)
 
     if (stat.isDirectory()) {
-      // Se for um diretório, faz a mesma mesma função
+      
       readQuestionsRecursively(filePath, questions)
     } else if (file === "details.json") {
-      // Se for um details.json, acrescenta às questões
+      
       try {
         const fileContent = fs.readFileSync(filePath, "utf-8")
         const questionData = JSON.parse(fileContent)
-        // Adiciona o nome da pasta (ex: "94-espanhol", "94-ingles", "94")
+        
         questionData.dirName = path.basename(path.dirname(filePath))
         questions.push(questionData)
       } catch (error) {
@@ -67,14 +67,14 @@ export async function GET(
 
     const allQuestions = readQuestionsRecursively(baseDir)
 
-    // Filtro especial para inglês e espanhol: pega por disciplina, language e dirName
+    
     const filteredQuestions = allQuestions.filter((q) => {
-      // se usuário pedir área inteira
+      
       if (["ciencias-humanas","ciencias-natureza","linguagens","matematica"].includes(subject)) {
         return q.area === subject
       }
 
-      // Filtro especial para inglês - deve incluir apenas questões de inglês
+      
       if (subject === "ingles") {
         const dir = (q.dirName || "").toLowerCase()
         return (
@@ -84,7 +84,7 @@ export async function GET(
         )
       }
 
-      // Filtro especial para espanhol - deve incluir apenas questões de espanhol
+      
       if (subject === "espanhol") {
         const dir = (q.dirName || "").toLowerCase()
         return (
@@ -94,7 +94,7 @@ export async function GET(
         )
       }
 
-      // caso normal: disciplina exata
+      
       return q.discipline === subject
     })
 

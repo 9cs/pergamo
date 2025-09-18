@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import fs from "fs"
 import path from "path"
 
-// Interface para a estrutura das questões
+
 interface Alternative {
   letter: string
   text: string
@@ -25,10 +25,10 @@ interface Question {
   dirName?: string
 }
 
-// Cache para questões já carregadas
+
 const questionsCache = new Map<string, Question[]>()
 
-// Função para ler recursivamente todos os arquivos details.json
+
 function readQuestionsRecursively(dir: string, questions: Question[] = []): Question[] {
   const files = fs.readdirSync(dir)
 
@@ -55,12 +55,12 @@ function readQuestionsRecursively(dir: string, questions: Question[] = []): Ques
   return questions
 }
 
-// Função para filtrar questões por disciplina
+
 function filterQuestionsByDiscipline(questions: Question[], discipline: string): Question[] {
   if (discipline === "ingles") {
     return questions.filter((q) => {
       const dir = (q.dirName || "").toLowerCase()
-      // Priorizar o campo language sobre discipline para línguas estrangeiras
+      
       return (
         (q.language && q.language.toLowerCase() === "ingles") ||
         q.discipline === "ingles" ||
@@ -72,7 +72,7 @@ function filterQuestionsByDiscipline(questions: Question[], discipline: string):
   if (discipline === "espanhol") {
     return questions.filter((q) => {
       const dir = (q.dirName || "").toLowerCase()
-      // Priorizar o campo language sobre discipline para línguas estrangeiras
+      
       return (
         (q.language && q.language.toLowerCase() === "espanhol") ||
         q.discipline === "espanhol" ||
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Diretório de questões não encontrado" }, { status: 404 })
     }
 
-    // Carregar todas as questões uma única vez (com cache)
+    
     let allQuestions: Question[]
     if (questionsCache.has("all")) {
       allQuestions = questionsCache.get("all")!
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
 
     const result: Record<string, { questions: Question[], total: number }> = {}
 
-    // Filtrar questões para cada disciplina solicitada
+    
     for (const subject of subjects) {
       const cacheKey = `${subject}-all`
       let filteredQuestions: Question[]
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
         questionsCache.set(cacheKey, filteredQuestions)
       }
 
-      // Aplicar paginação
+      
       const paginatedQuestions = filteredQuestions.slice(offset, offset + limit)
       
       result[subject] = {
