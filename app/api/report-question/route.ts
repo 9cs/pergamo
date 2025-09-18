@@ -9,9 +9,9 @@ const redis = new Redis({
 })
 
 function capitalizeFirstLetter(str: string) {
-    if (!str) return str
-    return str.charAt(0).toUpperCase() + str.slice(1)
-  }
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
 const ratelimit = new Ratelimit({
   redis,
@@ -29,25 +29,20 @@ export async function POST(req: Request) {
     }
 
     let ip = getClientIp(req)
+    if (!ip || ip === "::1" || ip === "127.0.0.1") ip = "unknown"
 
-    if (!ip || ip === "::1" || ip === "127.0.0.1") {
-      ip = "unknown"
-    }
-
-    const { success, remaining } = await ratelimit.limit(ip)
+    const { success } = await ratelimit.limit(ip)
     if (!success) {
       return NextResponse.json({ error: "Muitas requisições, tente mais tarde." }, { status: 429 })
     }
 
     const body = await req.json()
     const { questionId, subject, year, reason } = body
-
     if (!questionId || !reason) {
       return NextResponse.json({ error: "Payload inválido" }, { status: 400 })
     }
 
     const userIdentifier = ip
-
     const key = `reported:${questionId}`
 
     let country = "Desconhecido"
@@ -55,11 +50,11 @@ export async function POST(req: Request) {
 
     if (ip !== "unknown") {
       try {
-        const res = await fetch(`https://ip-api.com/json/${ip}`)
+        const res = await fetch(`https://ipwhois.app/json/${ip}`)
         if (res.ok) {
           const data = await res.json()
-          country = data.country
-          countryCode: data.countryCode
+          country = data.country || "Desconhecido"
+          countryCode = data.country_code || "BR"
         }
       } catch (err) {
         console.error("Erro ao obter país:", err)
@@ -67,11 +62,9 @@ export async function POST(req: Request) {
     }
 
     const added = await redis.sadd(key, userIdentifier)
-
     if (added === 0) {
       return NextResponse.json({ success: true, alreadyReported: true })
     }
-
     await redis.expire(key, REPORTS_KEY_TTL_SECONDS)
 
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL
@@ -79,18 +72,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 })
     }
 
-    const flagUrl = country !== "Desconhecido"
-    ? `https://flagcdn.com/16x12/${countryCode.toLowerCase()}.png`
-    : "https://i.imgur.com/placeholder.png"
+    const flagUrl =
+      country !== "Desconhecido"
+        ? `https://flagcdn.com/16x12/${countryCode.toLowerCase()}.png`
+        : "https://i.imgur.com/placeholder.png"
 
     const payload = {
       username: "Pergamo | ReportBot |",
-      avatar_url: "https://cdn.discordapp.com/attachments/1113994866330980442/1418132044944244899/follow_me_on_ig_valenwav.jpeg?ex=68cd01e3&is=68cbb063&hm=1781a8d44fb3cd81ff82c215b76cbc4912b1df8c2271b7842c0a7ba5dcafd38d&",
+      avatar_url:
+        "https://cdn.discordapp.com/attachments/1113994866330980442/1418132044944244899/follow_me_on_ig_valenwav.jpeg",
       embeds: [
         {
           title: "🚨 Questão reportada!",
           color: 16753920,
-          thumbnail: { url: "https://cdn.discordapp.com/attachments/1113994866330980442/1418094240428462131/dark.png?ex=68ccdead&is=68cb8d2d&hm=2b2202a50139283319e83d87baf8fe633bd8a9002880e7db8e99b2598b364122&" },
+          thumbnail: {
+            url: "https://cdn.discordapp.com/attachments/1113994866330980442/1418094240428462131/dark.png",
+          },
           fields: [
             { name: "Questão número", value: questionId, inline: true },
             { name: "Ano", value: String(year), inline: true },
@@ -98,7 +95,7 @@ export async function POST(req: Request) {
             { name: "Problema", value: reason },
           ],
           timestamp: new Date().toISOString(),
-          footer: { 
+          footer: {
             text: `País de origem: ${country}`,
             icon_url: flagUrl,
           },
