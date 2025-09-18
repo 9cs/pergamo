@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
+import ReportButton from "@/components/ReportButton"
 
 interface Alternative {
   letter: string
@@ -934,10 +935,17 @@ export default function QuestionsPage() {
 
             <CardHeader className="pb-6 relative">
               <div className="flex flex-wrap items-center gap-3 mb-4">
-                <Badge className="bg-blue-500/20 text-blue-300 border-0 px-3 py-1">{getSubjectName(subject)}</Badge>
-                <Badge className="bg-purple-500/20 text-purple-300 border-0 px-3 py-1">
-                  ENEM {currentQuestion.year}
-                </Badge>
+              <Badge className="h-9 rounded-full bg-blue-500/20 text-blue-300 border-0 px-3 py-1">
+                {currentQuestion?.discipline 
+                  ? getSubjectName(currentQuestion.discipline) 
+                  : getSubjectName(subject)}
+              </Badge>
+                <ReportButton
+                  questionId={currentQuestion.index.toString()}
+                  subject={currentQuestion.discipline || currentQuestion.area}
+                  year={currentQuestion.year}
+                />
+                
                 <div className="flex items-center gap-2 text-sm text-slate-300 ml-auto">
                   <Clock className="h-4 w-4 text-purple-400" />
                   <span className="bg-white/10 px-2 py-1 rounded-full">
@@ -1060,8 +1068,8 @@ export default function QuestionsPage() {
                     <div className="flex-1">
                       <p className="font-bold text-white text-lg">
                         {selectedAnswer === getCorrectShuffledLetter()
-                          ? "🎉 Resposta correta!"
-                          : "❌ Resposta incorreta!"}
+                          ? "Resposta correta!"
+                          : "Resposta incorreta."}
                       </p>
                       <p className="text-slate-200 mt-1">
                         {selectedAnswer === getCorrectShuffledLetter()

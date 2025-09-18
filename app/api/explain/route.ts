@@ -110,7 +110,7 @@ EXPLICAÇÃO:`
             content: prompt
           }
         ],
-        max_tokens: 500,
+        max_tokens: 800,
         temperature: 0.7,
         stream: true,
       }),

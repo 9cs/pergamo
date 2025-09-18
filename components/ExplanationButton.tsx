@@ -298,7 +298,7 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                      animate={{ opacity: 1, y: 0, scale: 1 }}
                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
                      transition={{ duration: 0.2, ease: "easeOut" }}
-                     className="fixed z-[10000] w-64 p-3 bg-gray-900 border border-border/70 text-white text-xs rounded-lg shadow-lg pointer-events-none"
+                     className="fixed z-[10000] w-64 p-3 bg-27272b/80 border border-border/70 text-white text-xs rounded-lg shadow-lg pointer-events-none"
                      style={{
                        left: `${tooltipPosition.x}px`,
                        top: `${tooltipPosition.y}px`,
