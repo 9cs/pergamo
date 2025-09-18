@@ -5,8 +5,10 @@
     "language": "ingles",
     "area": "linguagens",
     "discipline": "ingles",
-    "context": "![](https://enem.dev/broken-image.svg)\n\nDisponivel em: www.cartoonstock.com. Acesso em: 25 out. 2021",
-    "files": [],
+    "context": "\nDisponivel em: www.cartoonstock.com. Acesso em: 25 out. 2021",
+    "files": [
+    			"da86d21516618eecf9e5616a68ebbf95.png"
+    ],
     "correctAlternative": "B",
     "alternativesIntroduction": "Ao retratar o ambiente de trabalho em um escritório, esse cartum tem por objetivo",
     "alternatives": [
