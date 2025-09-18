@@ -110,6 +110,7 @@
     content: "";
     @apply absolute inset-0 opacity-0 transition-opacity duration-300;
     background: linear-gradient(135deg, var(--hover-color, hsl(var(--primary))) 0%, transparent 100%);
+    pointer-events: none;
   }
 
   .area-card:hover::before {

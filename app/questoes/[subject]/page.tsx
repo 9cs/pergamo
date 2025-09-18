@@ -71,11 +71,14 @@ function SafeImage({ src, alt }: { src: string; alt: string }) {
   if (error) {
     return <img src="/placeholder.svg" alt="Imagem não encontrada" className="max-w-full h-auto rounded-md" />
   }
+
   return (
-    <ClickableImage
+    <img
       src={src || "/placeholder.svg"}
       alt={alt}
-      className="max-w-full h-auto rounded-md"
+      className="max-w-full h-auto rounded-md cursor-pointer"
+      onError={() => setError(true)}
+      onClick={() => window.open(src, "_blank")}
     />
   )
 }
@@ -91,40 +94,52 @@ function extractFileNameFromUrl(url: string): string {
   }
 }
 
+
+function resolveFilePath(file: string | null | undefined, year?: number, dirName?: string) {
+  if (!file) return "/placeholder.svg"
+  const trimmed = file.trim()
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed
+
+  if (trimmed.startsWith('/')) return trimmed
+  if (year && dirName) return `/year/${year}/questions/${dirName}/${trimmed}`
+
+  return `/uploads/${trimmed}`
+}
+
+function shuffleArray<T>(arr: T[]) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 function formatContext(context: string | undefined | null, files: string[], dirName?: string, year?: number) {
   if (!context) return null
-  
+
   const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
-  const parts = []
+  const parts: any[] = []
   let lastIndex = 0
-  let match
-  
+  let match: RegExpExecArray | null
+
   while ((match = imageRegex.exec(context)) !== null) {
     if (match.index > lastIndex) {
-      parts.push({
-        type: 'text',
-        content: context.slice(lastIndex, match.index)
-      })
+      parts.push({ type: 'text', content: context.slice(lastIndex, match.index) })
     }
-    
+
     const imageUrl = match[2]
+    const resolved = resolveFilePath(imageUrl, year, dirName)
+
     const fileName = extractFileNameFromUrl(imageUrl)
-    parts.push({
-      type: 'image',
-      fileName: fileName,
-      alt: match[1] || 'Imagem da questão'
-    })
-    
+    parts.push({ type: 'image', src: resolved, fileName, alt: match[1] || 'Imagem da questão' })
     lastIndex = match.index + match[0].length
   }
-  
+
   if (lastIndex < context.length) {
-    parts.push({
-      type: 'text',
-      content: context.slice(lastIndex)
-    })
+    parts.push({ type: 'text', content: context.slice(lastIndex) })
   }
-  
+
   if (parts.length === 0) {
     const oldParts = context.split("[imagem]")
     let fileIndex = 0
@@ -137,7 +152,7 @@ function formatContext(context: string | undefined | null, files: string[], dirN
             {parseMarkdown(part)}
             {i < oldParts.length - 1 && files[fileIndex] && (
               <div className="my-4 flex justify-center">
-                <SafeImage src={`${basePath}/${files[fileIndex++]}`} alt={`Imagem da questão`} />
+                <SafeImage src={resolveFilePath(files[fileIndex++], year, dirName)} alt={`Imagem da questão`} />
               </div>
             )}
           </div>
@@ -145,9 +160,7 @@ function formatContext(context: string | undefined | null, files: string[], dirN
       </div>
     )
   }
-  
-  const basePath = year && dirName ? `/year/${year}/questions/${dirName}` : ""
-  
+
   return (
     <div className="context-block whitespace-pre-line">
       {parts.map((part, i) => (
@@ -156,10 +169,7 @@ function formatContext(context: string | undefined | null, files: string[], dirN
             parseMarkdown(part.content)
           ) : (
             <div className="my-4 flex justify-center">
-              <SafeImage 
-                src={`${basePath}/${part.fileName}`} 
-                alt={part.alt || 'Imagem da questão'} 
-              />
+              <SafeImage src={part.src} alt={part.alt || 'Imagem da questão'} />
             </div>
           )}
         </div>
@@ -178,7 +188,7 @@ export default function QuestionsPage() {
   const router = useRouter()
   const params = useParams()
   const subject = params?.subject as string
-  
+
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
   const hasLoadedRef = useRef(false)
 
@@ -197,38 +207,38 @@ export default function QuestionsPage() {
   const [questionTime, setQuestionTime] = useState(0)
   const totalTimerId = useRef<number | null>(null)
   const questionsCache = useRef<Map<string, Question[]>>(new Map())
-  
+
   const [shuffledAlternatives, setShuffledAlternatives] = useState<Alternative[]>([])
   const [alternativeMapping, setAlternativeMapping] = useState<Map<string, string>>(new Map())
-  
+
   const shuffleAlternatives = (alternatives: Alternative[]) => {
     if (!alternatives || !Array.isArray(alternatives)) {
       return { shuffled: [], mapping: new Map() }
     }
-    
+
     const shuffled = [...alternatives]
-    
+
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
-    
+
     const letters = ['A', 'B', 'C', 'D', 'E']
     const reordered = shuffled.map((alt, index) => ({
       ...alt,
       letter: letters[index]
     }))
-    
+
     const mapping = new Map<string, string>()
-    alternatives.forEach((original, index) => {
-      const shuffledIndex = shuffled.findIndex(alt => alt.letter === original.letter)
-      const newLetter = letters[shuffledIndex]
+    alternatives.forEach((original) => {
+      const shuffledIndex = reordered.findIndex(alt => alt.text === original.text && (alt.file || null) === (original.file || null))
+      const newLetter = shuffledIndex >= 0 ? letters[shuffledIndex] : original.letter
       mapping.set(original.letter, newLetter)
     })
-    
+
     return { shuffled: reordered, mapping }
   }
-  
+
   const [totalQuestionsCount, setTotalQuestionsCount] = useState(0)
   const [loadedQuestionsCount, setLoadedQuestionsCount] = useState(0)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
@@ -247,7 +257,7 @@ export default function QuestionsPage() {
     const q = setInterval(() => setQuestionTime((s) => s + 1), 1000)
     return () => clearInterval(q)
   }, [currentQuestionIndex])
-  
+
   useEffect(() => {
     if (currentQuestionIndex !== null && questions[currentQuestionIndex]) {
       const currentQuestion = questions[currentQuestionIndex]
@@ -316,32 +326,40 @@ export default function QuestionsPage() {
       } else {
         setIsLoadingMore(true)
       }
-      
+
       if (process.env.NODE_ENV === 'development') {
         console.log("Carregando questões para subject:", subjectToLoad, "offset:", offset, "limit:", limit)
       }
-      
+
       const cacheKey = subjectToLoad === "linguagens" && selectedLanguage 
         ? `linguagens-${selectedLanguage}` 
         : subjectToLoad
-      
-      if (questionsCache.current.has(cacheKey) && offset === 0) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Usando cache para:", cacheKey)
+
+      if (questionsCache.current.has(cacheKey)) {
+        const cachedFull = questionsCache.current.get(cacheKey)!
+        const totalCount = cachedFull.length
+        const sliced = cachedFull.slice(offset, offset + limit)
+
+        if (offset === 0) {
+          setQuestions(sliced)
+          setTotalQuestionsCount(totalCount)
+          setLoadedQuestionsCount(sliced.length)
+          setAllQuestionsLoaded(sliced.length >= totalCount)
+          setCurrentQuestionIndex(sliced.length > 0 ? 0 : null)
+        } else {
+          setQuestions(prev => [...prev, ...sliced])
+          setLoadedQuestionsCount(prev => prev + sliced.length)
+          setAllQuestionsLoaded(loadedQuestionsCount + sliced.length >= totalCount)
         }
-        const cachedData = questionsCache.current.get(cacheKey)!
-        setQuestions(cachedData)
-        setTotalQuestionsCount(cachedData.length)
-        setLoadedQuestionsCount(cachedData.length)
-        setAllQuestionsLoaded(true)
-        setCurrentQuestionIndex(cachedData.length > 0 ? 0 : null)
+
         setLoading(false)
+        setIsLoadingMore(false)
         return
       }
-      
+
       let allData: Question[] = []
       let totalCount = 0
-      
+
       if (subjectToLoad === "linguagens" && selectedLanguage) {
         const response = await fetch('/api/questions/batch-progressive', {
           method: 'POST',
@@ -355,35 +373,22 @@ export default function QuestionsPage() {
             limit: 10000
           })
         })
-        
+
         if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
         const batchData = await response.json()
-        
+
         const languageData = batchData[selectedLanguage]?.questions || []
         const portuguesData = batchData.portugues?.questions || []
         const literaturaData = batchData.literatura?.questions || []
         const artesData = batchData.artes?.questions || []
-        
+
         totalCount = (batchData[selectedLanguage]?.total || 0) + 
                     (batchData.portugues?.total || 0) + 
                     (batchData.literatura?.total || 0) + 
                     (batchData.artes?.total || 0)
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Questões de", selectedLanguage, ":", languageData.length, "questões")
-          console.log("Questões de português:", portuguesData.length, "questões")
-          console.log("Questões de literatura:", literaturaData.length, "questões")
-          console.log("Questões de artes:", artesData.length, "questões")
-          console.log("Total de questões:", totalCount)
-        }
-        
+
         const languageDataDuplicated = [...languageData, ...languageData]
-        
-        const allCombined = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
-        
-        const shuffled = allCombined.sort(() => Math.random() - 0.5)
-        
-        allData = shuffled.slice(offset, offset + limit)
+        allData = [...languageDataDuplicated, ...portuguesData, ...literaturaData, ...artesData]
         setSubjectName(`Linguagens (${getSubjectName(selectedLanguage)})`)
       } else if (subjectToLoad === "ciencias-humanas") {
         const response = await fetch('/api/questions/batch-progressive', {
@@ -398,28 +403,20 @@ export default function QuestionsPage() {
             limit
           })
         })
-        
+
         if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
         const batchData = await response.json()
-        
+
         const historiaData = batchData.historia?.questions || []
         const geografiaData = batchData.geografia?.questions || []
         const filosofiaData = batchData.filosofia?.questions || []
         const sociologiaData = batchData.sociologia?.questions || []
-        
+
         totalCount = (batchData.historia?.total || 0) + 
                     (batchData.geografia?.total || 0) + 
                     (batchData.filosofia?.total || 0) + 
                     (batchData.sociologia?.total || 0)
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Questões de história:", historiaData.length, "questões")
-          console.log("Questões de geografia:", geografiaData.length, "questões")
-          console.log("Questões de filosofia:", filosofiaData.length, "questões")
-          console.log("Questões de sociologia:", sociologiaData.length, "questões")
-          console.log("Total de questões:", totalCount)
-        }
-        
+
         allData = [...historiaData, ...geografiaData, ...filosofiaData, ...sociologiaData]
         setSubjectName("Ciências Humanas")
       } else if (subjectToLoad === "ciencias-natureza") {
@@ -435,25 +432,18 @@ export default function QuestionsPage() {
             limit
           })
         })
-        
+
         if (!response.ok) throw new Error(`Erro ao carregar questões: ${response.status}`)
         const batchData = await response.json()
-        
+
         const biologiaData = batchData.biologia?.questions || []
         const quimicaData = batchData.quimica?.questions || []
         const fisicaData = batchData.fisica?.questions || []
-        
+
         totalCount = (batchData.biologia?.total || 0) + 
                     (batchData.quimica?.total || 0) + 
                     (batchData.fisica?.total || 0)
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Questões de biologia:", biologiaData.length, "questões")
-          console.log("Questões de química:", quimicaData.length, "questões")
-          console.log("Questões de física:", fisicaData.length, "questões")
-          console.log("Total de questões:", totalCount)
-        }
-        
+
         allData = [...biologiaData, ...quimicaData, ...fisicaData]
         setSubjectName("Ciências da Natureza")
       } else {
@@ -465,49 +455,42 @@ export default function QuestionsPage() {
           },
           body: JSON.stringify({
             subjects: [subjectToLoad],
-            offset,
-            limit
+            offset: 0,
+            limit: 10000
           })
         })
-        
+
         if (!response.ok) throw new Error(`Erro ao carregar questões de ${subjectToLoad}: ${response.status}`)
         const batchData = await response.json()
-        
+
         allData = batchData[subjectToLoad]?.questions || []
         totalCount = batchData[subjectToLoad]?.total || 0
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Questões de", subjectToLoad, ":", allData.length, "questões")
-          console.log("Total de questões:", totalCount)
-        }
-        
         setSubjectName(getSubjectName(subjectToLoad))
       }
-      
+
       if (process.env.NODE_ENV === 'development') {
         console.log("Questões carregadas neste lote:", allData.length, "questões")
         console.log("Total de questões disponíveis:", totalCount)
       }
-      
-      const shuffled = allData.sort(() => Math.random() - 0.5)
-      
+
+      const fullShuffled = shuffleArray(allData)
+      questionsCache.current.set(cacheKey, fullShuffled)
+
+      const sliced = fullShuffled.slice(offset, offset + limit)
+
       if (offset === 0) {
-        setQuestions(shuffled)
-        setTotalQuestionsCount(totalCount)
-        setLoadedQuestionsCount(shuffled.length)
-        setAllQuestionsLoaded(shuffled.length >= totalCount)
-        setCurrentQuestionIndex(shuffled.length > 0 ? 0 : null)
-        
-        questionsCache.current.set(cacheKey, shuffled)
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Questões armazenadas no cache para:", cacheKey)
-        }
+        setQuestions(sliced)
+        setTotalQuestionsCount(totalCount || fullShuffled.length)
+        setLoadedQuestionsCount(sliced.length)
+        setAllQuestionsLoaded(sliced.length >= (totalCount || fullShuffled.length))
+        setCurrentQuestionIndex(sliced.length > 0 ? 0 : null)
       } else {
-        setQuestions(prev => [...prev, ...shuffled])
-        setLoadedQuestionsCount(prev => prev + shuffled.length)
-        setAllQuestionsLoaded(loadedQuestionsCount + shuffled.length >= totalCount)
+        setQuestions(prev => [...prev, ...sliced])
+        setLoadedQuestionsCount(prev => prev + sliced.length)
+        setAllQuestionsLoaded(loadedQuestionsCount + sliced.length >= (totalCount || fullShuffled.length))
       }
-      if (shuffled.length > 0 && offset === 0) {
+
+      if (fullShuffled.length > 0 && offset === 0) {
         if (totalTimerId.current) {
           clearInterval(totalTimerId.current)
         }
@@ -529,9 +512,9 @@ export default function QuestionsPage() {
 
   const loadMoreQuestions = async () => {
     if (isLoadingMore || allQuestionsLoaded) return
-    
+
     if (subject === "linguagens") return
-    
+
     const remainingQuestions = questions.length - (currentQuestionIndex || 0)
     if (remainingQuestions <= 5) {
       await loadQuestions(subject, loadedQuestionsCount, 20)
@@ -550,7 +533,7 @@ export default function QuestionsPage() {
         return original
       }
     }
-    return shuffledLetter // fallback
+    return shuffledLetter 
   }
   
   const getCorrectShuffledLetter = () => {
@@ -560,7 +543,7 @@ export default function QuestionsPage() {
         return shuffled
       }
     }
-    return currentQuestion.correctAlternative // fallback
+    return currentQuestion.correctAlternative 
   }
 
   const handleSelectAnswer = (letter: string) => !isAnswered && setSelectedAnswer(letter)
@@ -957,7 +940,7 @@ export default function QuestionsPage() {
               <div className="space-y-3">
                 {shuffledAlternatives.map((alt) => {
                   const isSelected = selectedAnswer === alt.letter
-                  // Encontrar a letra correta na posição embaralhada
+                  
                   const correctShuffledLetter = getCorrectShuffledLetter()
                   const isCorrectAlt = alt.letter === correctShuffledLetter
 
@@ -1001,7 +984,7 @@ export default function QuestionsPage() {
                           {alt.file && (
                             <div className="mt-3 flex justify-center">
                               <ClickableImage
-                                src={alt.file || "/placeholder.svg"}
+                                src={resolveFilePath(alt.file, currentQuestion.year, currentQuestion.dirName) || "/placeholder.svg"}
                                 alt={`Alternativa ${alt.letter}`}
                                 className="max-h-48 rounded-lg shadow-lg"
                               />

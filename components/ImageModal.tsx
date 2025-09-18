@@ -158,7 +158,7 @@ export default function ImageModal({ src, alt, isOpen, onClose }: ImageModalProp
           zIndex: 9999
         }}
         onClick={(e) => {
-          // Fecha quando clicar no fundo (não na imagem ou botões)
+          
           if (e.target === e.currentTarget) {
             onClose()
           }

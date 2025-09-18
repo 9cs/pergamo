@@ -15,7 +15,6 @@ export function QuestionImage({ src, alt }: QuestionImageProps) {
     setIsError(true)
   }
 
-  // Se houver erro, mostra um placeholder
   if (isError) {
     return (
       <div className="flex justify-center items-center bg-gray-100 dark:bg-gray-800 rounded-md w-full h-64">
@@ -24,7 +23,6 @@ export function QuestionImage({ src, alt }: QuestionImageProps) {
     )
   }
 
-  // Se a imagem for uma URL externa (começa com http)
   if (src.startsWith("http")) {
     return (
       <div className="my-4 flex justify-center">
@@ -33,7 +31,6 @@ export function QuestionImage({ src, alt }: QuestionImageProps) {
     )
   }
 
-  // Se for um caminho local
   return (
     <div className="my-4 flex justify-center">
       <img src={src || "/placeholder.svg"} alt={alt} className="max-w-full h-auto rounded-md" onError={handleError} />

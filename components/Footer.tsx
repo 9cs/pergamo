@@ -14,7 +14,6 @@ export default function Footer() {
       <div className="relative px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col items-center text-center gap-6">
-            {/* Developer Info */}
             <div className="flex items-center gap-2 text-slate-300">
               <span>Desenvolvido por</span>
               <span className="font-bold text-xl bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -22,7 +21,6 @@ export default function Footer() {
               </span>
             </div>
 
-            {/* Social Links */}
             <div className="flex gap-4">
               <Button
                 variant="outline"
@@ -31,7 +29,7 @@ export default function Footer() {
                 asChild
               >
                 <Link
-                  href="https://dantton.online"
+                  href="https://dantton.site"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center"
@@ -55,8 +53,6 @@ export default function Footer() {
                 </Link>
               </Button>
             </div>
-
-            {/* Copyright */}
             <div className="text-sm text-slate-400">
               <p>© 2025 - Todos os direitos reservados</p>
             </div>
