@@ -3,7 +3,6 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   User,
@@ -13,7 +12,6 @@ import {
   FileText,
   Globe,
   Clock,
-  Flag,
   Dna,
   Atom,
   Languages,
@@ -22,12 +20,12 @@ import {
   GraduationCap,
   Target,
   TrendingUp,
-  X,
   Brush,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Footer from "@/components/Footer"
 import LanguageModal from "@/components/LanguageModal"
+// import ThemeGenerator from "@/components/ThemeGenerator"
 
 const areas = [
   {
@@ -177,7 +175,7 @@ export default function Home() {
                       <p className="text-muted-foreground text-sm leading-relaxed">{area.description}</p>
                     </div>
 
-                    <Button className="subject-btn w-full" size="lg" onClick={() => handleStartStudies(area.key)}>
+                    <Button className="subject-btn w-full text-neutral-900 bg-neutral-100 hover:bg-neutral-100" size="lg" onClick={() => handleStartStudies(area.key)}>
                       Começar Estudos
                       <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
@@ -196,11 +194,12 @@ export default function Home() {
               {selectedLanguage && selectedLanguage !== "all" && (
                 <div className="mt-4">
                   <p className="text-sm sm:text-base text-muted-foreground">
-                    Mostrando apenas as disciplinas de Linguagens: Português, Literatura e {selectedLanguage === "ingles" ? "Inglês" : "Espanhol"}
+                    Mostrando apenas as disciplinas de Linguagens: Português, Literatura e{" "}
+                    {selectedLanguage === "ingles" ? "Inglês" : "Espanhol"}
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={resetLanguageFilter}
                     className="mt-2"
                   >
@@ -212,70 +211,73 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {subjects
-                .filter(subject => {
-                  if (!selectedLanguage || selectedLanguage === "all") return true;
-                  
+                .filter((subject) => {
+                  if (!selectedLanguage || selectedLanguage === "all") return true
+
                   if (selectedLanguage === "ingles") {
-                    return subject.key === "portugues" || subject.key === "literatura" || subject.key === "ingles";
+                    return subject.key === "portugues" || subject.key === "literatura" || subject.key === "ingles"
                   }
-                  
+
                   if (selectedLanguage === "espanhol") {
-                    return subject.key === "portugues" || subject.key === "literatura" || subject.key === "espanhol";
+                    return subject.key === "portugues" || subject.key === "literatura" || subject.key === "espanhol"
                   }
-                  
-                  return true;
+
+                  return true
                 })
                 .map((subject) => (
-                <Card
-                  key={subject.key}
-                  className={cn("area-card card-hover group cursor-pointer", "h-full min-h-[160px] sm:min-h-[180px]")}
-                  style={
-                    {
-                      ["--hover-color" as any]: `hsl(var(--${subject.color}))`,
-                    } as React.CSSProperties
-                  }
-                >
-                  <CardContent className="p-4 sm:p-6 h-full flex flex-col justify-between">
-                    <div className="flex items-start justify-between mb-4">
-                      <div
-                        className="flex items-center justify-center w-12 h-12 rounded-xl"
-                        style={{ backgroundColor: `hsl(var(--${subject.color}) / 0.15)` }}
-                      >
-                        {React.cloneElement(subject.icon, {
-                          className: "h-5 w-5",
-                          style: { color: `hsl(var(--${subject.color}))` },
-                        })}
+                  <Card
+                    key={subject.key}
+                    className={cn("area-card card-hover group cursor-pointer", "h-full min-h-[160px] sm:min-h-[180px]")}
+                    style={
+                      {
+                        ["--hover-color" as any]: `hsl(var(--${subject.color}))`,
+                      } as React.CSSProperties
+                    }
+                  >
+                    <CardContent className="p-4 sm:p-6 h-full flex flex-col justify-between">
+                      <div className="flex items-start justify-between mb-4">
+                        <div
+                          className="flex items-center justify-center w-12 h-12 rounded-xl"
+                          style={{ backgroundColor: `hsl(var(--${subject.color}) / 0.15)` }}
+                        >
+                          {React.cloneElement(subject.icon, {
+                            className: "h-5 w-5",
+                            style: { color: `hsl(var(--${subject.color}))` },
+                          })}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex-1 mb-4">
-                      <h3 className="text-base sm:text-lg font-semibold text-foreground transition-colors">
-                        {subject.title}
-                      </h3>
-                    </div>
+                      <div className="flex-1 mb-4">
+                        <h3 className="text-base sm:text-lg font-semibold text-foreground transition-colors">
+                          {subject.title}
+                        </h3>
+                      </div>
 
-                    {subject.key === "lingua-estrangeira" ? (
-                      <Button 
-                        className="subject-btn w-full" 
-                        size="sm" 
-                        onClick={() => handleStartStudies(subject.key)}
-                      >
-                        Praticar
-                        <ChevronRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    ) : (
-                      <Link href={`/questoes/${subject.key}`} className="w-full">
-                        <Button className="subject-btn w-full" size="sm">
+                      {subject.key === "lingua-estrangeira" ? (
+                        <Button
+                          className="subject-btn w-full text-neutral-900 bg-neutral-100 hover:bg-neutral-100"
+                          size="sm"
+                          onClick={() => handleStartStudies(subject.key)}
+                        >
                           Praticar
                           <ChevronRight className="h-4 w-4 ml-2" />
                         </Button>
-                      </Link>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                      ) : (
+                        <Link href={`/questoes/${subject.key}`} className="w-full">
+                          <Button className="subject-btn w-full text-neutral-900 bg-neutral-100 hover:bg-neutral-100" size="sm">
+                            Praticar
+                            <ChevronRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        </Link>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
             </div>
           </section>
+
+          {/* <ThemeGenerator />       */} 
+          {/* GERADOR DE TEMAS REDACAO */}
 
           <section>
             <Card className="area-card border-border/50 bg-gradient-to-br from-card to-card/80">
@@ -320,9 +322,9 @@ export default function Home() {
       </main>
 
       <Footer />
-      
-      <LanguageModal 
-        isOpen={showLanguageModal} 
+
+      <LanguageModal
+        isOpen={showLanguageModal}
         onClose={() => setShowLanguageModal(false)}
         isLinguagensArea={isLinguagensArea}
       />

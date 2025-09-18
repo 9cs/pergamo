@@ -149,10 +149,10 @@ function formatContext(context: string | undefined | null, files: string[], dirN
     return (
       <div className="context-block whitespace-pre-line">
         {oldParts.map((part, i) => (
-          <div key={i} className="mb-4">
+          <div key={i} className="mb-2">
             {parseMarkdown(part)}
             {i < oldParts.length - 1 && files[fileIndex] && (
-              <div className="my-4 flex justify-center">
+              <div className="my-3 flex justify-center">
                 <SafeImage src={resolveFilePath(files[fileIndex++], year, dirName)} alt={`Imagem da questão`} />
               </div>
             )}
@@ -165,11 +165,11 @@ function formatContext(context: string | undefined | null, files: string[], dirN
   return (
     <div className="context-block whitespace-pre-line">
       {parts.map((part, i) => (
-        <div key={i} className="mb-4">
+        <div key={i} className="mb-2">
           {part.type === 'text' ? (
             parseMarkdown(part.content)
           ) : (
-            <div className="my-4 flex justify-center">
+            <div className="my-2 flex justify-center">
               <SafeImage src={part.src} alt={part.alt || 'Imagem da questão'} />
             </div>
           )}
@@ -707,7 +707,7 @@ export default function QuestionsPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => router.push(`/`)}
-                  className="text-white hover:bg-white/10 rounded-full"
+                  className="text-white hover:bg-white/10 hover:text-white rounded-full"
                 >
                   <Home className="h-5 w-5" />
                 </Button>
@@ -743,7 +743,7 @@ export default function QuestionsPage() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-8 relative">
+                <CardContent className="space-y-2 relative">
                   <div className="text-center">
                     <motion.div
                       className="text-6xl font-bold mb-3"
@@ -767,7 +767,7 @@ export default function QuestionsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
                     <div className="text-center p-4 bg-white/5 rounded-xl">
                       <div className="text-3xl font-bold text-white mb-1">{totalQuestions}</div>
                       <div className="text-sm text-slate-300">Questões</div>
@@ -782,7 +782,7 @@ export default function QuestionsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                     <div className="text-center p-4 bg-blue-500/10 rounded-xl">
                       <div className="text-3xl font-bold text-blue-400 mb-1">
                         {Math.floor(totalTime / 60)}:{(totalTime % 60).toString().padStart(2, "0")}
@@ -806,14 +806,14 @@ export default function QuestionsPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push("/")}
-                className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                className="flex-1 bg-white/10 border-white/10 text-white hover:bg-white/20 backdrop-blur-sm transition-transform duration-200 ease-out hover:scale-105"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar ao início
               </Button>
               <Button
                 onClick={handleRestart}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg"
+                className="flex-1 text-neutral-900 bg-neutral-100 hover:bg-neutral-300 border-0 shadow-lg transition-transform duration-200 ease-out hover:scale-105"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Tentar novamente
@@ -891,7 +891,13 @@ export default function QuestionsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setShowStats(true)}
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                    className="bg-white/10 
+                    border-white/20 
+                    text-white                
+                    backdrop-blur-sm  
+                    hover:bg-white/20
+                    transition-transform duration-200 ease-out
+                    hover:scale-105"
                   >
                     Finalizar
                   </Button>
@@ -933,9 +939,9 @@ export default function QuestionsPage() {
           <Card className="bg-white/10 backdrop-blur-sm border-0 shadow-2xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10"></div>
 
-            <CardHeader className="pb-6 relative">
+            <CardHeader className="pb-2.5 relative">
               <div className="flex flex-wrap items-center gap-3 mb-4">
-              <Badge className="h-9 rounded-full bg-blue-500/20 text-blue-300 border-0 px-3 py-1">
+              <Badge className="h-10 inline-flex rounded-md rounded-full bg-neutral-100 text-neutral-900">
                 {currentQuestion?.discipline 
                   ? getSubjectName(currentQuestion.discipline) 
                   : getSubjectName(subject)}
@@ -946,12 +952,12 @@ export default function QuestionsPage() {
                   year={currentQuestion.year}
                 />
                 
-                <div className="flex items-center gap-2 text-sm text-slate-300 ml-auto">
+                <div className="ml-auto">
+                <span className="bg-white/5 px-2 py-1 rounded-full flex items-center gap-1 text-sm text-slate-300">
                   <Clock className="h-4 w-4 text-purple-400" />
-                  <span className="bg-white/10 px-2 py-1 rounded-full">
-                    {Math.floor(questionTime / 60)}:{(questionTime % 60).toString().padStart(2, "0")}
-                  </span>
-                </div>
+                  {Math.floor(questionTime / 60)}:{(questionTime % 60).toString().padStart(2, "0")}
+                </span>
+              </div>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">{currentQuestion.title}</h2>
             </CardHeader>
@@ -986,6 +992,7 @@ export default function QuestionsPage() {
                     isAnswered &&
                       isCorrectAlt &&
                       "border-emerald-400 bg-emerald-500/20 shadow-lg shadow-emerald-500/25",
+                    isAnswered && !isSelected && !isCorrectAlt && "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30",
                     isAnswered &&
                       isSelected &&
                       !isCorrectAlt &&
@@ -1008,6 +1015,7 @@ export default function QuestionsPage() {
                             !isAnswered &&
                               "border-white/40 text-white/70 group-hover:border-white/60 group-hover:text-white",
                             isSelected && !isAnswered && "border-blue-400 text-blue-400 bg-blue-500/20",
+                            isAnswered && !isSelected && !isCorrectAlt && "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30",
                             isAnswered && isCorrectAlt && "border-emerald-400 text-emerald-400 bg-emerald-500/20",
                             isAnswered && isSelected && !isCorrectAlt && "border-red-400 text-red-400 bg-red-500/20",
                           )}
@@ -1096,8 +1104,16 @@ export default function QuestionsPage() {
               <div className="flex gap-3 w-full sm:w-auto">
                 <Button
                   onClick={handleConfirmAnswer}
+                  variant="outline"
                   disabled={!selectedAnswer || isAnswered}
-                  className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="
+                    flex-1 sm:flex-none 
+                    bg-white text-neutral-900 border-white/20
+                    backdrop-blur-sm shadow-lg
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    transition-transform duration-200 ease-out
+                    hover:scale-105
+                  "
                 >
                   Confirmar resposta
                 </Button>
@@ -1105,7 +1121,14 @@ export default function QuestionsPage() {
                   <Button
                     onClick={handleSkipQuestion}
                     variant="outline"
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                    className="
+                    flex-1 sm:flex-none 
+                    bg-white/10 text-white border-white/20
+                    backdrop-blur-sm shadow-lg
+                    hover:bg-white/20
+                    transition-transform duration-200 ease-out
+                    hover:scale-105
+                  "
                   >
                     <SkipForward className="h-4 w-4 mr-2" />
                     Pular
@@ -1125,7 +1148,7 @@ export default function QuestionsPage() {
               {isAnswered && (
                 <Button
                   onClick={handleNextQuestion}
-                  className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-lg"
+                  className="w-full sm:w-auto bg-white hover:bg-white text-neutral-900 border-0 shadow-lg transition-transform duration-200 ease-out hover:scale-105"
                 >
                   {totalRespondidas < questions.length - 1 ? "Próxima questão" : "Ver resultado"}
                   <ArrowRight className="h-4 w-4 ml-2" />

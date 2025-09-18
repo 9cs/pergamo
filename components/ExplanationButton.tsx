@@ -211,15 +211,15 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                      onMouseEnter={handleTooltipShow}
                      onMouseLeave={handleTooltipHide}
                    >
-                     <div className="p-2 bg-amber-500/20 rounded-full cursor-help">
-                       <AlertTriangle className="h-4 w-4 text-amber-400" />
+                     <div className="p-2.5 mr-2 outline outline-2 outline-amber-400/30 bg-amber-500/20 rounded-full cursor-help">
+                       <AlertTriangle className="h-5 w-5 text-amber-400" />
                      </div>
                    </div>
                    <Button
                      variant="ghost"
                      size="icon"
                      onClick={handleCloseExplanation}
-                     className="text-muted-foreground hover:text-foreground rounded-full"
+                     className="text-muted-foreground hover:text-foreground hover:bg-222223 outline outline-2 outline-white/20 transition-transform duration-200 ease-out hover:scale-105 rounded-full"
                    >
                      <X className="h-5 w-5" />
                    </Button>
@@ -258,7 +258,7 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
                     variant="outline"
                     size="sm"
                     onClick={handleCloseExplanation}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground hover:bg-222223 transition-transform duration-200 ease-out hover:scale-105"
                   >
                     Fechar
                   </Button>
@@ -273,7 +273,7 @@ export default function ExplanationButton({ question, isAnswered, userAnswer, sh
       <Button
         onClick={handleGetExplanation}
         disabled={!isAnswered || isLoading}
-        className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full sm:w-auto gap-2 bg-neutral-100 hover:bg-neutral-100 text-neutral-900 border-0 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transition-transform duration-200 ease-out hover:scale-105"
       >
         {isLoading ? "Gerando..." : "Mostrar explicação"}
         {isLoading ? (

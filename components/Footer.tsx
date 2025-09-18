@@ -25,7 +25,7 @@ export default function Footer() {
               <Button
                 variant="outline"
                 size="icon"
-                className="w-12 h-12 rounded-xl border-slate-700 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-blue-600 hover:border-blue-500 hover:text-white hover:scale-110 transition-all duration-300 group"
+                className="w-12 h-12 rounded-xl border-slate-700 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-card hover:border-blue-500 hover:text-white hover:scale-110 transition-all duration-300 group"
                 asChild
               >
                 <Link
@@ -40,7 +40,7 @@ export default function Footer() {
               <Button
                 variant="outline"
                 size="icon"
-                className="w-12 h-12 rounded-xl border-slate-700 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-purple-600 hover:border-purple-500 hover:text-white hover:scale-110 transition-all duration-300 group"
+                className="w-12 h-12 rounded-xl border-slate-700 bg-slate-800/50 backdrop-blur-sm text-slate-300 hover:bg-card hover:border-purple-500 hover:text-white hover:scale-110 transition-all duration-300 group"
                 asChild
               >
                 <Link

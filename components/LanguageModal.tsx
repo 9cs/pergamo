@@ -38,7 +38,7 @@ export default function LanguageModal({ isOpen, onClose, isLinguagensArea = fals
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground rounded-full"
+            className="text-muted-foreground hover:text-foreground hover:bg-222223 outline outline-2 outline-white/10 transition-transform duration-200 ease-out hover:scale-105 rounded-full"
           >
             <X className="h-5 w-5" />
           </Button>

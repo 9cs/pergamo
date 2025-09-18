@@ -22,10 +22,13 @@ const REPORTS_KEY_TTL_SECONDS = 90 * 24 * 60 * 60 // 90 dias
 
 export async function POST(req: Request) {
   try {
-    const ip =
-      (req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown")
-        .split(",")[0]
-        .trim()
+    const getClientIp = (req: Request) => {
+      const forwarded = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip")
+      if (!forwarded) return "unknown"
+      return forwarded.split(",")[0].trim()
+    }
+
+    const ip = getClientIp(req)
 
     const { success, remaining } = await ratelimit.limit(ip)
     if (!success) {
@@ -44,14 +47,19 @@ export async function POST(req: Request) {
     const key = `reported:${questionId}`
 
     let country = "Desconhecido"
+    let countryCode = "BR"
 
     if (ip !== "unknown") {
-    try {
-        const res = await fetch(`https://ipapi.co/${ip}/country/`)
-        if (res.ok) country = (await res.text()).trim()
-    } catch (err) {
+      try {
+        const res = await fetch(`http://ip-api.com/json/${ip}`)
+        if (res.ok) {
+          const data = await res.json()
+          country = data.country
+          countryCode: data.countryCode
+        }
+      } catch (err) {
         console.error("Erro ao obter país:", err)
-    }
+      }
     }
 
     const added = await redis.sadd(key, userIdentifier)
@@ -68,12 +76,12 @@ export async function POST(req: Request) {
     }
 
     const flagUrl = country !== "Desconhecido"
-    ? `https://flagcdn.com/16x12/${country.toLowerCase()}.png`
+    ? `https://flagcdn.com/16x12/${countryCode.toLowerCase()}.png`
     : "https://i.imgur.com/placeholder.png"
 
     const payload = {
       username: "Pergamo | ReportBot |",
-      avatar_url: "https://cdn.discordapp.com/attachments/1113994866330980442/1418094240428462131/dark.png?ex=68ccdead&is=68cb8d2d&hm=2b2202a50139283319e83d87baf8fe633bd8a9002880e7db8e99b2598b364122&",
+      avatar_url: "https://cdn.discordapp.com/attachments/1113994866330980442/1418132044944244899/follow_me_on_ig_valenwav.jpeg?ex=68cd01e3&is=68cbb063&hm=1781a8d44fb3cd81ff82c215b76cbc4912b1df8c2271b7842c0a7ba5dcafd38d&",
       embeds: [
         {
           title: "🚨 Questão reportada!",

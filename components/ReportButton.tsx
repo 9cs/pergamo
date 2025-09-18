@@ -48,6 +48,7 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [alreadyReported, setAlreadyReported] = useState(false)
+  const [selectedReason, setSelectedReason] = useState<string | null>(null)
 
   const reasons = [
     "Matéria incorreta",
@@ -58,7 +59,6 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
   ]
 
   useEffect(() => {
-    // checar localStorage ao montar
     if (typeof window !== "undefined") {
       setAlreadyReported(hasReportedInLocal(questionId))
     }
@@ -73,7 +73,6 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
 
     try {
       setLoading(true)
-
       const res = await fetch("/api/report-question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -88,7 +87,6 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
       const data = await res.json()
 
       if (!res.ok) {
-        // trata 429 e outros erros
         if (res.status === 429) {
           toast.error(data?.error || "Muitas requisições. Tente mais tarde.")
         } else {
@@ -97,7 +95,6 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
         return
       }
 
-      // Se o backend devolve alreadyReported = true, ainda assim marcamos local e damos mensagem de sucesso
       if (data?.alreadyReported) {
         addReportedInLocal(questionId)
         setAlreadyReported(true)
@@ -106,7 +103,6 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
         return
       }
 
-      // sucesso real
       addReportedInLocal(questionId)
       setAlreadyReported(true)
       toast.success("Report enviado com sucesso! Obrigado 🙏")
@@ -122,28 +118,29 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
   return (
     <>
       <Button
-        variant="outline"
-        size="sm"
-        className={`bg-yellow-500/20 text-yellow-400 border-0 px-3 py-1 rounded-full ${
-            alreadyReported
-            ? "opacity-60 pointer-events-none cursor-not-allowed"
-            : "hover:bg-yellow/100"
-        }`}
+        className={`
+          bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full
+          transition-transform duration-200 ease-out
+          ${alreadyReported 
+            ? "opacity-50 pointer-events-none hover:scale-100 hover:bg-yellow-500/20 cursor-not-allowed"
+            : "hover:scale-105 hover:bg-yellow-500/25"
+          }
+        `}
         onClick={() => {
-            if (alreadyReported) {
+          if (alreadyReported) {
             toast.success("Questão já reportada — obrigado!")
             return
-            }
-            setOpen(true)
+          }
+          setOpen(true)
         }}
         aria-pressed={open}
-        >
+      >
         <AlertTriangle className="h-4 w-4 mr-1" />
         Reportar
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-background text-white border border-white/10">
+        <DialogContent className="bg-background/80 backdrop-blur-md text-white border border-white/10">
           <DialogHeader>
             <DialogTitle>Reportar questão</DialogTitle>
           </DialogHeader>
@@ -153,8 +150,12 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
               <Button
                 key={r}
                 disabled={loading}
-                onClick={() => handleReport(r)}
-                className="w-full bg-white/10 hover:bg-white/20 border-white/20"
+                onClick={() => setSelectedReason(r)}
+                className={`w-full border-white/20 ${
+                  selectedReason === r
+                    ? "bg-neutral-100/95 hover:bg-neutral-100 text-neutral-900 border-2 border-bg shadow-lg transition-transform duration-200 ease-out hover:scale-105"
+                    : "bg-white/10 hover:bg-white/20 text-white"
+                }`}
               >
                 {r}
               </Button>
@@ -169,6 +170,13 @@ export default function ReportButton({ questionId, subject, year }: ReportButton
               className="text-slate-300 hover:bg-white/10"
             >
               Cancelar
+            </Button>
+            <Button
+              onClick={() => selectedReason && handleReport(selectedReason)}
+              disabled={loading || !selectedReason}
+              className="w-full sm:w-auto bg-white hover:bg-white text-neutral-900 border-0 shadow-lg transition-transform duration-200 ease-out hover:scale-105"
+            >
+              Enviar Report
             </Button>
           </DialogFooter>
         </DialogContent>
