@@ -23,12 +23,16 @@ const REPORTS_KEY_TTL_SECONDS = 90 * 24 * 60 * 60 // 90 dias
 export async function POST(req: Request) {
   try {
     const getClientIp = (req: Request) => {
-      const forwarded = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip")
+      const forwarded = req.headers.get("x-forwarded-for")
       if (!forwarded) return "unknown"
       return forwarded.split(",")[0].trim()
     }
 
-    const ip = getClientIp(req)
+    let ip = getClientIp(req)
+
+    if (!ip || ip === "::1" || ip === "127.0.0.1") {
+      ip = "unknown"
+    }
 
     const { success, remaining } = await ratelimit.limit(ip)
     if (!success) {
@@ -51,7 +55,7 @@ export async function POST(req: Request) {
 
     if (ip !== "unknown") {
       try {
-        const res = await fetch(`http://ip-api.com/json/${ip}`)
+        const res = await fetch(`https://ip-api.com/json/${ip}`)
         if (res.ok) {
           const data = await res.json()
           country = data.country
