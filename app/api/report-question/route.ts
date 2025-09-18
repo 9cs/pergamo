@@ -89,14 +89,14 @@ export async function POST(req: Request) {
             url: "https://cdn.discordapp.com/attachments/1113994866330980442/1418094240428462131/dark.png",
           },
           fields: [
-            { name: "Questão número", value: questionId, inline: true },
             { name: "Ano", value: String(year), inline: true },
+            { name: "Número", value: questionId, inline: true },
             { name: "Matéria", value: capitalizeFirstLetter(subject) },
             { name: "Problema", value: reason },
           ],
           timestamp: new Date().toISOString(),
           footer: {
-            text: `País de origem: ${country}`,
+            text: `Origem: ${country}`,
             icon_url: flagUrl,
           },
         },
